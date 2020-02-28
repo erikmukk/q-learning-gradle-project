@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+}
+
+apply plugin :"java"
+
+group 'person.mukk'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+ext {
+    javaMainClass = "Main"
+}
+
+application {
+    mainClassName = javaMainClass
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile files('./libs/energy2d.jar')
+    // https://mvnrepository.com/artifact/org.nd4j/nd4j-native-platform
+    compile group: 'org.nd4j', name: 'nd4j-native-platform', version: '1.0.0-beta6'
+}
