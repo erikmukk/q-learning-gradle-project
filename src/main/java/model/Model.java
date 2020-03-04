@@ -36,6 +36,10 @@ public class Model implements Runnable {
         return model2D;
     }
 
+    public void stop() {
+        this.model2D.stop();
+    }
+
     @Override
     public void run() {
         this.model2D.run();
