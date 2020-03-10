@@ -119,7 +119,7 @@ public class QTable {
         } else {
             calculatedAction = (int)(Math.random() * (actionSpace.length));
         }
-        int wantedAction = environment.getCorrectAction(20);
+        int wantedAction = environment.getCorrectAction();
 
         // Take action
         environment.takeAction(calculatedAction);
@@ -159,7 +159,6 @@ public class QTable {
         tempValues[calculatedAction] = newQ;
         qTable.put(qTableKey2, tempValues);
         episodeReward += reward;
-
     }
 
     private static int findArgmax(float[] array) {

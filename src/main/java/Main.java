@@ -24,7 +24,7 @@ public class Main {
         return new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
     }
 
-    private static Environment setupEnvironment(Model2D model2D) {
+    private static Environment setupEnvironment(Model2D model2D, float targetTemp) {
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         float insideTemp;
@@ -39,7 +39,7 @@ public class Main {
         } catch (Exception e) {
             outsideTemp = 0.0f;
         }
-        return new Environment(outsideTemp, insideTemp);
+        return new Environment(outsideTemp, insideTemp, targetTemp);
     }
 
     public static void main(String[] args) throws IOException {
@@ -48,12 +48,13 @@ public class Main {
         float maxOutsideTemp = 40f;
         float minInsideTemp = 0f;
         float maxInsideTemp = 40f;
+        float targetTemp = 20f;
         Model modelRunnable = new Model("src/main/resources/test-heating-sun-2.e2d");
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
         Model2D model2D = modelRunnable.getModel2D();
         setupModel2D(model2D);
-        Environment environment = setupEnvironment(model2D);
+        Environment environment = setupEnvironment(model2D, targetTemp);
         QTable qTable = setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, environment.getActionSpace().length);
 
         executor.execute(modelRunnable);
@@ -72,7 +73,7 @@ public class Main {
                     qTable.calculateQTableValue(environment, model2D);
                     qTable.startNewIteration();
                     model2D.reset();
-                    environment = setupEnvironment(model2D);
+                    environment = setupEnvironment(model2D, targetTemp);
                     prevTime = 0;
                 }
                 executor.execute(modelRunnable);

@@ -6,22 +6,23 @@ public class Environment {
     boolean humanPresence;
     float insideTemp;
     float outsideTemp;
+    float targetTemp;
     boolean isHeating;
     public final int DO_NOTHING = 0;
     public final int HEAT = 1;
     public final int STOP_HEATING = 2;
     private final int[] actionSpace = new int[]{HEAT, STOP_HEATING, DO_NOTHING};
 
-    public Environment(float outsideTemp, float insideTemp) {
+    public Environment(float outsideTemp, float insideTemp, float targetTemp) {
         this.humanPresence = Helpers.getRandomBoolean();
         this.isHeating = Helpers.getRandomBoolean();
         this.insideTemp = insideTemp;
         this.outsideTemp = outsideTemp;
+        this.targetTemp = targetTemp;
     }
 
     public void takeAction(int choice) {
-        if (choice == DO_NOTHING) {
-        } else if (choice == HEAT) {
+        if (choice == HEAT) {
             this.isHeating = true;
         } else if (choice == STOP_HEATING) {
             this.isHeating = false;
@@ -32,17 +33,32 @@ public class Environment {
         return actionSpace;
     }
 
-    public int getCorrectAction(int targetTemp) {
-        if (this.insideTemp < targetTemp & this.outsideTemp < targetTemp) {
+    public int getCorrectAction() {
+        if (this.isHeating) {
+            if (this.outsideTemp > this.insideTemp) {
+                if (this.outsideTemp > this.targetTemp) {
+                    return STOP_HEATING;
+                }
+            } else {
+                if (this.insideTemp >= this.targetTemp) {
+                    return STOP_HEATING;
+                }
+            }
+            return DO_NOTHING;
+        } else {
+            if (this.outsideTemp > this.insideTemp) {
+                if (this.outsideTemp >= this.targetTemp) {
+                    return DO_NOTHING;
+                } else if (this.insideTemp >= this.targetTemp) {
+                    return DO_NOTHING;
+                }
+            } else {
+                if (this.insideTemp >= this.targetTemp) {
+                    return DO_NOTHING;
+                }
+            }
             return HEAT;
         }
-        if (this.outsideTemp > targetTemp) {
-            return STOP_HEATING;
-        }
-        if (this.insideTemp > targetTemp) {
-            return STOP_HEATING;
-        }
-        return DO_NOTHING;
     }
 
     public float getInsideTemp() {
