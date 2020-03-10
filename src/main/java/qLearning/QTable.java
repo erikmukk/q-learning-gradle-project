@@ -7,6 +7,7 @@ import org.concord.energy2d.model.Thermostat;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class QTable implements Serializable {
 
@@ -32,6 +33,7 @@ public class QTable implements Serializable {
     private static final float EPS_DECAY = 0.9998f;
     private static final float LEARNING_RATE = 0.1f;
     private static final float DISCOUNT = 0.95f;
+    private static final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
     static double epsilon = 0.9;
     static int correct = 0;
     static int incorrect = 0;
@@ -116,6 +118,8 @@ public class QTable implements Serializable {
     public void startNewIteration() {
         epsilon = epsilon * EPS_DECAY;
         loops += 1;
+        allEpisodeRewards.put(loops, episodeReward);
+        episodeReward = 0;
         System.out.println("correct: " + correct + "\tincorrect: " + incorrect + "\tloops: " + loops
                 + "\tprevCorrect: " + prevCorrect+ "\tprevIncorrect: " + prevIncorrect);
         prevCorrect = 0;
@@ -255,5 +259,9 @@ public class QTable implements Serializable {
 
     public int getLoops() {
         return loops;
+    }
+
+    public static Map<Integer, Float> getAllEpisodeRewards() {
+        return allEpisodeRewards;
     }
 }
