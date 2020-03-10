@@ -8,8 +8,11 @@ import qLearning.Environment;
 import qLearning.QTable;
 
 import java.awt.*;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,6 +26,12 @@ public class Main {
 
     private static QTable setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
         return new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
+    }
+
+    private static QTable setupQTable(String filename) throws Exception {
+        FileInputStream fi = new FileInputStream(new File(filename));
+        ObjectInputStream oi = new ObjectInputStream(fi);
+        return (QTable) oi.readObject();
     }
 
     private static Environment setupEnvironment(Model2D model2D, float targetTemp) {
@@ -43,8 +52,16 @@ public class Main {
         return new Environment(outsideTemp, insideTemp, targetTemp);
     }
 
+    private static void writeIntoFile(QTable qTable, String filename) throws IOException {
+        FileOutputStream f = new FileOutputStream(new File(filename));
+        ObjectOutputStream o = new ObjectOutputStream(f);
+        o.writeObject(qTable);
+        o.close();
+    }
+
     public static void main(String[] args) throws IOException {
         System.out.println("I am main class!");
+        String filename = "table.properties";
         float minOutsideTemp = -30f;
         float maxOutsideTemp = 40f;
         float minInsideTemp = 0f;
@@ -55,18 +72,22 @@ public class Main {
         Model2D model2D = modelRunnable.getModel2D();
         setupModel2D(model2D);
         Environment environment = setupEnvironment(model2D, targetTemp);
-        QTable qTable = setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, environment.getActionSpace().length);
+        QTable qTable;
+        try {
+            qTable = setupQTable(filename);
+        } catch (Exception e) {
+            qTable = setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, environment.getActionSpace().length);
+        }
 
         executor.execute(modelRunnable);
         float prevTime = 0;
-
 
         while (true) {
             try {
                 Thread.sleep(1);
                 model2D.stop();
                 float time = model2D.getTime();
-                model2D.moveSun(6, 18);
+                assert qTable != null;
                 if ((time % 1800 <= 10 & time > prevTime + 15) & time < 86400) {
                     qTable.calculateQTableValue(environment, model2D);
                     prevTime = time;
@@ -77,6 +98,10 @@ public class Main {
                     model2D.reset();
                     environment = setupEnvironment(model2D, targetTemp);
                     prevTime = 0;
+                    int loops = qTable.getLoops();
+                    if (loops % 100 == 0) {
+                        writeIntoFile(qTable, filename);
+                    }
                 }
                 executor.execute(modelRunnable);
             } catch (Exception e) {

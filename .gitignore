@@ -3,6 +3,7 @@
 /.idea/
 /out/
 *.iml
+table.properties
 
 gradle-app.setting
 

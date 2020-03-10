@@ -1,15 +1,14 @@
 package qLearning;
 
-import com.sun.tools.doclint.Env;
 import math.Helpers;
 import org.concord.energy2d.model.Model2D;
 import org.concord.energy2d.model.Thermometer;
 import org.concord.energy2d.model.Thermostat;
 
+import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 
-public class QTable {
+public class QTable implements Serializable {
 
     HashMap<String, float[]> qTable;
     public String belowMinInsideTempKey = "-_";
@@ -38,7 +37,7 @@ public class QTable {
     static int incorrect = 0;
     static int prevCorrect = 0;
     static int prevIncorrect = 0;
-    static int loops = 0;
+    public int loops = 0;
 
     public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
         initQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
@@ -49,7 +48,7 @@ public class QTable {
         this.maxInsideTemp = maxInsideTemp;
         this.minOutsideTemp = minOutsideTemp;
         this.maxOutsideTemp = maxOutsideTemp;
-        qTable = new HashMap<>();
+        this.qTable = new HashMap<>();
         for (float i=minInsideTemp; i <= maxInsideTemp ; i+=0.1f) {
             for (float j=minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=0.1f) {
                 String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
@@ -252,5 +251,9 @@ public class QTable {
 
     public String getAboveMaxOutsideTempKey() {
         return aboveMaxOutsideTempKey;
+    }
+
+    public int getLoops() {
+        return loops;
     }
 }
