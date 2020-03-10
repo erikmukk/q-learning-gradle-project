@@ -17,6 +17,7 @@ public class ReadQTableClassContents {
                 }
             }
         }*/
+        //System.out.println(table.getAllEpisodeRewards());
         /*for (Integer key : table.getAllEpisodeRewards().keySet()) {
             System.out.println(key);
         }*/

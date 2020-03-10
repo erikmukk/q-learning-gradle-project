@@ -24,7 +24,7 @@ public class QTable implements Serializable {
     private HashMap<Integer, Float> electricityStockPrice;
     private float averageStockPrice;
 
-    static float episodeReward = 0;
+    private float episodeReward = 0;
 
     private static final int CORRECT_HEATING_REWARD = 100;
     private static final int GOOD_ELECTRICITY_PRICE_REWARD = 25;
@@ -33,12 +33,12 @@ public class QTable implements Serializable {
     private static final float EPS_DECAY = 0.9998f;
     private static final float LEARNING_RATE = 0.1f;
     private static final float DISCOUNT = 0.95f;
-    private static final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
-    static double epsilon = 0.9;
-    static int correct = 0;
-    static int incorrect = 0;
-    static int prevCorrect = 0;
-    static int prevIncorrect = 0;
+    private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
+    private double epsilon = 0.9;
+    private int correct = 0;
+    private int incorrect = 0;
+    private int prevCorrect = 0;
+    private int prevIncorrect = 0;
     public int loops = 0;
 
     public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
@@ -58,42 +58,42 @@ public class QTable implements Serializable {
                 for (int k = 0 ; k < actionsLength ; k++) {
                     arr[k] = 0f;
                 }
-                qTable.put(key, arr);
+                this.qTable.put(key, arr);
             }
         }
-        qTable.put(belowMinInsideTempKey, new float[]{0f, 0f, 0f});
-        qTable.put(belowMinOutsideTempKey, new float[]{0f, 0f, 0f});
-        qTable.put(aboveMaxInsideTempKey, new float[]{0f, 0f, 0f});
-        qTable.put(aboveMaxOutsideTempKey, new float[]{0f, 0f, 0f});
-        initElectricity();
+        this.qTable.put(belowMinInsideTempKey, new float[]{0f, 0f, 0f});
+        this.qTable.put(belowMinOutsideTempKey, new float[]{0f, 0f, 0f});
+        this.qTable.put(aboveMaxInsideTempKey, new float[]{0f, 0f, 0f});
+        this.qTable.put(aboveMaxOutsideTempKey, new float[]{0f, 0f, 0f});
+        this.initElectricity();
     }
 
     private void initElectricity() {
         this.electricityStockPrice = new HashMap<>();
-        electricityStockPrice.put(0, 17.59f);
-        electricityStockPrice.put(1, 14.96f);
-        electricityStockPrice.put(2, 14.91f);
-        electricityStockPrice.put(3, 14.93f);
-        electricityStockPrice.put(4, 21.68f);
-        electricityStockPrice.put(5, 16.09f);
-        electricityStockPrice.put(6, 20.02f);
-        electricityStockPrice.put(7, 34.45f);
-        electricityStockPrice.put(8, 41.07f);
-        electricityStockPrice.put(9, 38.58f);
-        electricityStockPrice.put(10, 25.85f);
-        electricityStockPrice.put(11, 30.70f);
-        electricityStockPrice.put(12, 39.31f);
-        electricityStockPrice.put(13, 39.72f);
-        electricityStockPrice.put(14, 33.52f);
-        electricityStockPrice.put(15, 22.79f);
-        electricityStockPrice.put(16, 30.03f);
-        electricityStockPrice.put(17, 50.89f);
-        electricityStockPrice.put(18, 62.43f);
-        electricityStockPrice.put(19, 35.07f);
-        electricityStockPrice.put(20, 18.61f);
-        electricityStockPrice.put(21, 17.20f);
-        electricityStockPrice.put(22, 12.09f);
-        electricityStockPrice.put(23, 9.38f);
+        this.electricityStockPrice.put(0, 17.59f);
+        this.electricityStockPrice.put(1, 14.96f);
+        this.electricityStockPrice.put(2, 14.91f);
+        this.electricityStockPrice.put(3, 14.93f);
+        this.electricityStockPrice.put(4, 21.68f);
+        this.electricityStockPrice.put(5, 16.09f);
+        this.electricityStockPrice.put(6, 20.02f);
+        this.electricityStockPrice.put(7, 34.45f);
+        this.electricityStockPrice.put(8, 41.07f);
+        this.electricityStockPrice.put(9, 38.58f);
+        this.electricityStockPrice.put(10, 25.85f);
+        this.electricityStockPrice.put(11, 30.70f);
+        this.electricityStockPrice.put(12, 39.31f);
+        this.electricityStockPrice.put(13, 39.72f);
+        this.electricityStockPrice.put(14, 33.52f);
+        this.electricityStockPrice.put(15, 22.79f);
+        this.electricityStockPrice.put(16, 30.03f);
+        this.electricityStockPrice.put(17, 50.89f);
+        this.electricityStockPrice.put(18, 62.43f);
+        this.electricityStockPrice.put(19, 35.07f);
+        this.electricityStockPrice.put(20, 18.61f);
+        this.electricityStockPrice.put(21, 17.20f);
+        this.electricityStockPrice.put(22, 12.09f);
+        this.electricityStockPrice.put(23, 9.38f);
         this.averageStockPrice = 27.58f;
     }
 
@@ -116,14 +116,14 @@ public class QTable implements Serializable {
     }
 
     public void startNewIteration() {
-        epsilon = epsilon * EPS_DECAY;
-        loops += 1;
-        allEpisodeRewards.put(loops, episodeReward);
-        episodeReward = 0;
-        System.out.println("correct: " + correct + "\tincorrect: " + incorrect + "\tloops: " + loops
-                + "\tprevCorrect: " + prevCorrect+ "\tprevIncorrect: " + prevIncorrect);
-        prevCorrect = 0;
-        prevIncorrect = 0;
+        this.epsilon = this.epsilon * EPS_DECAY;
+        this.loops += 1;
+        this.allEpisodeRewards.put(this.loops, this.episodeReward);
+        this.episodeReward = 0;
+        System.out.println("correct: " + this.correct + "\tincorrect: " + this.incorrect + "\tloops: " + this.loops
+                + "\tprevCorrect: " + this.prevCorrect+ "\tprevIncorrect: " + this.prevIncorrect);
+        this.prevCorrect = 0;
+        this.prevIncorrect = 0;
     }
 
     private int electricityPriceReward(float time, int action, Environment env) {
@@ -188,12 +188,12 @@ public class QTable implements Serializable {
         // Calculate episode rewards
         if (wantedAction == calculatedAction) {
             reward += CORRECT_HEATING_REWARD;
-            prevCorrect += 1;
-            correct += 1;
+            this.prevCorrect += 1;
+            this.correct += 1;
         } else {
             reward += INCORRECT_HEATING_PENALTY;
-            prevIncorrect += 1;
-            incorrect += 1;
+            this.prevIncorrect += 1;
+            this.incorrect += 1;
         }
 
         reward += electricityPriceReward(model2D.getTime(), calculatedAction, environment);
@@ -213,8 +213,8 @@ public class QTable implements Serializable {
         // Set new qTable values
         float[] tempValues = qTable.get(qTableKey2);
         tempValues[calculatedAction] = newQ;
-        qTable.put(qTableKey2, tempValues);
-        episodeReward += reward;
+        this.qTable.put(qTableKey2, tempValues);
+        this.episodeReward += reward;
     }
 
     private static int findArgmax(float[] array) {
@@ -264,4 +264,6 @@ public class QTable implements Serializable {
     public Map<Integer, Float> getAllEpisodeRewards() {
         return allEpisodeRewards;
     }
+
+
 }
