@@ -261,7 +261,7 @@ public class QTable implements Serializable {
         return loops;
     }
 
-    public static Map<Integer, Float> getAllEpisodeRewards() {
+    public Map<Integer, Float> getAllEpisodeRewards() {
         return allEpisodeRewards;
     }
 }
