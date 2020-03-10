@@ -3,6 +3,7 @@ import model.Model;
 import org.concord.energy2d.event.ManipulationEvent;
 import org.concord.energy2d.model.Model2D;
 import org.concord.energy2d.model.Thermometer;
+import org.concord.energy2d.system.Task;
 import qLearning.Environment;
 import qLearning.QTable;
 
@@ -51,7 +52,6 @@ public class Main {
         float targetTemp = 20f;
         Model modelRunnable = new Model("src/main/resources/test-heating-sun-2.e2d");
         ExecutorService executor = Executors.newFixedThreadPool(1);
-
         Model2D model2D = modelRunnable.getModel2D();
         setupModel2D(model2D);
         Environment environment = setupEnvironment(model2D, targetTemp);
@@ -60,16 +60,18 @@ public class Main {
         executor.execute(modelRunnable);
         float prevTime = 0;
 
+
         while (true) {
             try {
                 Thread.sleep(1);
                 model2D.stop();
                 float time = model2D.getTime();
-                if ((time % 1800 <= 10 & time > prevTime + 15) & time < 43200) {
+                model2D.moveSun(6, 18);
+                if ((time % 1800 <= 10 & time > prevTime + 15) & time < 86400) {
                     qTable.calculateQTableValue(environment, model2D);
                     prevTime = time;
                 }
-                if (time >= 43200) {
+                if (time >= 86400) {
                     qTable.calculateQTableValue(environment, model2D);
                     qTable.startNewIteration();
                     model2D.reset();

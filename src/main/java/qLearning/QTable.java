@@ -1,5 +1,6 @@
 package qLearning;
 
+import com.sun.tools.doclint.Env;
 import math.Helpers;
 import org.concord.energy2d.model.Model2D;
 import org.concord.energy2d.model.Thermometer;
@@ -20,10 +21,14 @@ public class QTable {
     private float minOutsideTemp;
     private float maxOutsideTemp;
 
+    private HashMap<Integer, Float> electricityStockPrice;
+    private float averageStockPrice;
 
     static float episodeReward = 0;
 
     private static final int CORRECT_HEATING_REWARD = 100;
+    private static final int GOOD_ELECTRICITY_PRICE_REWARD = 25;
+    private static final int BAD_ELECTRICITY_PRICE_PENALTY = -50;
     private static final int INCORRECT_HEATING_PENALTY = -400;
     private static final float EPS_DECAY = 0.9998f;
     private static final float LEARNING_RATE = 0.1f;
@@ -59,6 +64,36 @@ public class QTable {
         qTable.put(belowMinOutsideTempKey, new float[]{0f, 0f, 0f});
         qTable.put(aboveMaxInsideTempKey, new float[]{0f, 0f, 0f});
         qTable.put(aboveMaxOutsideTempKey, new float[]{0f, 0f, 0f});
+        initElectricity();
+    }
+
+    private void initElectricity() {
+        this.electricityStockPrice = new HashMap<>();
+        electricityStockPrice.put(0, 17.59f);
+        electricityStockPrice.put(1, 14.96f);
+        electricityStockPrice.put(2, 14.91f);
+        electricityStockPrice.put(3, 14.93f);
+        electricityStockPrice.put(4, 21.68f);
+        electricityStockPrice.put(5, 16.09f);
+        electricityStockPrice.put(6, 20.02f);
+        electricityStockPrice.put(7, 34.45f);
+        electricityStockPrice.put(8, 41.07f);
+        electricityStockPrice.put(9, 38.58f);
+        electricityStockPrice.put(10, 25.85f);
+        electricityStockPrice.put(11, 30.70f);
+        electricityStockPrice.put(12, 39.31f);
+        electricityStockPrice.put(13, 39.72f);
+        electricityStockPrice.put(14, 33.52f);
+        electricityStockPrice.put(15, 22.79f);
+        electricityStockPrice.put(16, 30.03f);
+        electricityStockPrice.put(17, 50.89f);
+        electricityStockPrice.put(18, 62.43f);
+        electricityStockPrice.put(19, 35.07f);
+        electricityStockPrice.put(20, 18.61f);
+        electricityStockPrice.put(21, 17.20f);
+        electricityStockPrice.put(22, 12.09f);
+        electricityStockPrice.put(23, 9.38f);
+        this.averageStockPrice = 27.58f;
     }
 
     public String makeQTableKey(float insideTemp, float outsideTemp) {
@@ -86,6 +121,22 @@ public class QTable {
                 + "\tprevCorrect: " + prevCorrect+ "\tprevIncorrect: " + prevIncorrect);
         prevCorrect = 0;
         prevIncorrect = 0;
+    }
+
+    private int electricityPriceReward(float time, int action, Environment env) {
+        int timeHr = (int) (time / 36000);
+        if (timeHr > 23) {
+            timeHr = 23;
+        }
+        float electricityPrice = this.electricityStockPrice.get(timeHr);
+        if (action == env.HEAT) {
+            if (electricityPrice > this.averageStockPrice + 10) {
+                return BAD_ELECTRICITY_PRICE_PENALTY;
+            } else {
+                return GOOD_ELECTRICITY_PRICE_REWARD;
+            }
+        }
+        return 0;
     }
 
     public void calculateQTableValue(Environment environment, Model2D model2D) {
@@ -141,6 +192,8 @@ public class QTable {
             prevIncorrect += 1;
             incorrect += 1;
         }
+
+        reward += electricityPriceReward(model2D.getTime(), calculatedAction, environment);
 
         // Calculate qTable values
         float envInsideTemp2 = environment.getInsideTemp();

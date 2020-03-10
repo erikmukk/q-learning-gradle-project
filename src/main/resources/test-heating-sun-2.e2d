@@ -5,9 +5,9 @@
 <model>
 <timestep>10.0</timestep>
 <tasks>
-
+<task uid="MOVE_SUN" script="set sunny true;-linebreak-movesun;" description="Move the sun." interval="100"/>
 </tasks>
-<sunny>true</sunny><sun_angle>-0.55268764</sun_angle>
+<sunny>true</sunny><sun_angle>0</sun_angle>
 <solar_power_density>15000.0</solar_power_density>
 <solar_ray_count>24</solar_ray_count>
 <solar_ray_speed>0.005</solar_ray_speed>
