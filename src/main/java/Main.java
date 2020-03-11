@@ -90,11 +90,11 @@ public class Main {
                 float time = model2D.getTime();
                 assert qTable != null;
                 if ((time % 1800 <= 10 & time > prevTime + 15) & time < 86400) {
-                    qTable.calculateQTableValue(environment, model2D);
+                    qTable.doWhenXTimeHasPassed(environment, model2D);
                     prevTime = time;
                 }
                 if (time >= 86400) {
-                    qTable.calculateQTableValue(environment, model2D);
+                    qTable.doWhenXTimeHasPassed(environment, model2D);
                     qTable.startNewIteration();
                     model2D.reset();
                     environment = setupEnvironment(model2D, targetTemp);

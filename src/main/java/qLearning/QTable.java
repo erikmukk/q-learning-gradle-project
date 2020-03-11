@@ -142,7 +142,7 @@ public class QTable implements Serializable {
         return 0;
     }
 
-    public void calculateQTableValue(Environment environment, Model2D model2D) {
+    public void doWhenXTimeHasPassed(Environment environment, Model2D model2D) {
         int reward = 0;
         int[] actionSpace = environment.getActionSpace();
         Thermometer insideThermometer = model2D.getThermometer("inside");
