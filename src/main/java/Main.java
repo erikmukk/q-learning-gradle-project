@@ -1,3 +1,4 @@
+import logger.Logger;
 import math.Helpers;
 import model.Model;
 import org.concord.energy2d.event.ManipulationEvent;
@@ -32,7 +33,8 @@ public class Main {
     private static QTable setupQTable(String filename) throws Exception {
         FileInputStream fi = new FileInputStream(new File(filename));
         ObjectInputStream oi = new ObjectInputStream(fi);
-        return (QTable) oi.readObject();
+        Logger log = (Logger) oi.readObject();
+        return log.getLoggedQTable();
     }
 
     private static Environment setupEnvironment(Model2D model2D, float targetTemp) {
@@ -53,16 +55,17 @@ public class Main {
         return new Environment(outsideTemp, insideTemp, targetTemp);
     }
 
-    private static void writeIntoFile(QTable qTable, String filename) throws IOException {
+    private static void writeIntoFile(Serializable serializable, String filename) throws IOException {
         FileOutputStream f = new FileOutputStream(new File(filename));
         ObjectOutputStream o = new ObjectOutputStream(f);
-        o.writeObject(qTable);
+        o.writeObject(serializable);
         o.close();
     }
 
     public static void main(String[] args) throws IOException {
         System.out.println("I am main class!");
-        String filename = "table.properties";
+        String logfileName = "logfile.properties";
+        Logger logger = new Logger();
         float minOutsideTemp = -30f;
         float maxOutsideTemp = 40f;
         float minInsideTemp = 0f;
@@ -75,7 +78,7 @@ public class Main {
         Environment environment = setupEnvironment(model2D, targetTemp);
         QTable qTable;
         try {
-            qTable = setupQTable(filename);
+            qTable = setupQTable(logfileName);
         } catch (Exception e) {
             qTable = setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, environment.getActionSpace().length);
         }
@@ -95,13 +98,13 @@ public class Main {
                 }
                 if (time >= 86400) {
                     qTable.calculateQTableValue(environment, model2D);
-                    qTable.startNewIteration();
+                    qTable.startNewIteration(logger, environment);
                     model2D.reset();
                     environment = setupEnvironment(model2D, targetTemp);
                     prevTime = 0;
                     int loops = qTable.getLoops();
                     if (loops % 50 == 0) {
-                        writeIntoFile(qTable, filename);
+                        writeIntoFile(logger, logfileName);
                         System.out.println("50 iterations added!\t" + qTable.getLoops() + "loops completed");
                     }
                 }
