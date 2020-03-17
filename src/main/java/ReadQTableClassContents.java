@@ -11,17 +11,20 @@ public class ReadQTableClassContents {
         ObjectInputStream oi = new ObjectInputStream(fi);
         Logger logger = (Logger) oi.readObject();
         QTable table = logger.getLoggedQTable();
-        for (String key : table.getqTable().keySet()) {
+        /*for (String key : table.getqTable().keySet()) {
             float[] tbl = table.getqTable().get(key);
             for (float val : tbl) {
                 if (val != 0.0f) {
                     System.out.println(key + " " + Arrays.toString(tbl));
                 }
             }
-        }
+        }*/
         //System.out.println(table.getAllEpisodeRewards());
         /*for (Integer key : table.getAllEpisodeRewards().keySet()) {
-            System.out.println(key);
+            System.out.println(table.getAllEpisodeRewards().get(key));
         }*/
+        for (Integer key : logger.getLoggedEnvironments().keySet()) {
+            System.out.println(logger.getLoggedEnvironments().get(key).getHeatingTimeAndPriceMap());
+        }
     }
 }

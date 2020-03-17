@@ -63,7 +63,7 @@ public class Environment implements Serializable {
 
     private void addTimeAndPrice(float time, int loopNr) {
         int timeHr = (int) (time / 3600);
-        if (time > 23) {
+        if (timeHr > 23) {
             timeHr = 23;
         }
         // Increment heating duration in loop at x-time
@@ -145,6 +145,10 @@ public class Environment implements Serializable {
 
     public float getAverageStockPrice() {
         return averageStockPrice;
+    }
+
+    public HashMap<Integer, HashMap<Integer, Integer>> getHeatingTimeAndPriceMap() {
+        return heatingTimeAndPriceMap;
     }
 
     @Override

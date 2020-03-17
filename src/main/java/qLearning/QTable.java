@@ -28,7 +28,7 @@ public class QTable implements Serializable {
     private static final int GOOD_ELECTRICITY_PRICE_REWARD = 25;
     private static final int BAD_ELECTRICITY_PRICE_PENALTY = -50;
     private static final int INCORRECT_HEATING_PENALTY = -400;
-    private static final float EPS_DECAY = 0.9998f;
+    private static final float EPS_DECAY = 0.999f;
     private static final float LEARNING_RATE = 0.1f;
     private static final float DISCOUNT = 0.95f;
     private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
@@ -87,9 +87,10 @@ public class QTable implements Serializable {
     public void startNewIteration(Logger logger, Environment environment) {
         this.epsilon = this.epsilon * EPS_DECAY;
         this.loops += 1;
-        logger.addToLoggedEnvironments(environment, this.iterationLoops);
-        this.iterationLoops = 0;
         this.allEpisodeRewards.put(this.loops, this.episodeReward);
+        logger.addToLoggedEnvironments(environment, this.iterationLoops);
+        logger.addLoggedQTable(this);
+        this.iterationLoops = 0;
         this.episodeReward = 0;
         System.out.println("correct: " + this.correct + "\tincorrect: " + this.incorrect + "\tloops: " + this.loops
                 + "\tprevCorrect: " + this.prevCorrect+ "\tprevIncorrect: " + this.prevIncorrect);
