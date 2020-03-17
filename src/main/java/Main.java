@@ -20,8 +20,8 @@ import java.util.concurrent.Executors;
 public class Main {
 
     private static void setupModel2D(Model2D model2D) {
-        //model2D.setTimeStep(5f);
-        model2D.setTimeStep(10f);
+        model2D.setTimeStep(5f);
+        //model2D.setTimeStep(10f);
         model2D.getThermostats().get(0).setDeadband(1000);
         model2D.getThermostats().get(0).setSetPoint(1000);
     }
@@ -103,7 +103,7 @@ public class Main {
                     environment = setupEnvironment(model2D, targetTemp);
                     prevTime = 0;
                     int loops = qTable.getLoops();
-                    if (loops % 50 == 0) {
+                    if (loops % 1 == 0) {
                         writeIntoFile(logger, logfileName);
                         System.out.println("50 iterations added!\t" + qTable.getLoops() + "loops completed");
                     }

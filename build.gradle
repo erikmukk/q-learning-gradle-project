@@ -17,6 +17,13 @@ application {
     mainClassName = javaMainClass
 }
 
+task run2(type: JavaExec) {
+    group = "A"
+    description = "a"
+    classpath = sourceSets.main.runtimeClasspath
+    main = javaMainClass
+}
+
 repositories {
     mavenCentral()
 }

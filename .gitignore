@@ -4,6 +4,7 @@
 /out/
 *.iml
 table*.properties
+logfile*
 
 gradle-app.setting
 

@@ -2,9 +2,10 @@ package qLearning;
 
 import math.Helpers;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Environment {
+public class Environment implements Serializable {
     boolean humanPresence;
     float insideTemp;
     float outsideTemp;
