@@ -103,7 +103,7 @@ public class Main {
                     environment = setupEnvironment(model2D, targetTemp);
                     prevTime = 0;
                     int loops = qTable.getLoops();
-                    if (loops % 1 == 0) {
+                    if (loops % 50 == 0) {
                         writeIntoFile(logger, logfileName);
                         System.out.println("50 iterations added!\t" + qTable.getLoops() + "loops completed");
                     }
