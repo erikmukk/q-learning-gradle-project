@@ -28,7 +28,7 @@ public class QTable implements Serializable {
     private static final int GOOD_ELECTRICITY_PRICE_REWARD = 25;
     private static final int BAD_ELECTRICITY_PRICE_PENALTY = -50;
     private static final int INCORRECT_HEATING_PENALTY = -400;
-    private static final float EPS_DECAY = 0.999f;
+    private static final float EPS_DECAY = 0.99f;
     private static final float LEARNING_RATE = 0.1f;
     private static final float DISCOUNT = 0.95f;
     private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
@@ -88,7 +88,9 @@ public class QTable implements Serializable {
         this.epsilon = this.epsilon * EPS_DECAY;
         this.loops += 1;
         this.allEpisodeRewards.put(this.loops, this.episodeReward);
-        logger.addToLoggedEnvironments(environment, this.iterationLoops);
+        logger.addToTotalTimeHeatingPerLoop(this.loops, environment.getTotalTimeHeating());
+        logger.addToElectricityUsedPerLoopPerHr(this.loops, environment.getHeatingTimeAndPriceMap());
+        logger.addToTemperatureAveragesPerLoopPerHr(this.loops, environment.getHeatingPeriodAndAvgTempMap());
         logger.addLoggedQTable(this);
         this.iterationLoops = 0;
         this.episodeReward = 0;
@@ -149,7 +151,7 @@ public class QTable implements Serializable {
         int wantedAction = environment.getCorrectAction();
 
         // Take action
-        environment.takeAction(calculatedAction, model2D.getTime(), this.getIterationLoops());
+        environment.takeAction(calculatedAction, model2D.getTime());
         if (calculatedAction == environment.HEAT) {
             insideThermostat.getPowerSource().setPowerSwitch(true);
         } else if (calculatedAction == environment.STOP_HEATING) {

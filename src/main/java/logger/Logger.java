@@ -1,6 +1,5 @@
 package logger;
 
-import qLearning.Environment;
 import qLearning.QTable;
 
 import java.io.Serializable;
@@ -8,26 +7,47 @@ import java.util.HashMap;
 
 public class Logger implements Serializable {
 
-    HashMap<Integer, Environment> loggedEnvironments;
     QTable loggedQTable;
+    // Map<Episode#, TimeHeating>
+    HashMap<Integer, Integer> totalTimeHeatingPerLoop;
+    HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr;
+    HashMap<Integer, HashMap<Integer, Float>> temperatureAveragesPerLoopPerHr;
 
     public Logger() {
-        this.loggedEnvironments = new HashMap<>();
-    }
-
-    public void addToLoggedEnvironments(Environment env, int loopNr) {
-        this.loggedEnvironments.put(loopNr, env);
+        this.totalTimeHeatingPerLoop = new HashMap<>();
+        this.electricityUsedPerLoopPerHr = new HashMap<>();
+        this.temperatureAveragesPerLoopPerHr = new HashMap<>();
     }
 
     public void addLoggedQTable(QTable table) {
         this.loggedQTable = table;
     }
 
-    public HashMap<Integer, Environment> getLoggedEnvironments() {
-        return loggedEnvironments;
+    public void addToTotalTimeHeatingPerLoop(int loopNr, int time) {
+        this.totalTimeHeatingPerLoop.put(loopNr, time);
+    }
+
+    public void addToElectricityUsedPerLoopPerHr(int loopNr, HashMap<Integer, Integer> map) {
+        this.electricityUsedPerLoopPerHr.put(loopNr, map);
+    }
+
+    public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, Float> map) {
+        this.temperatureAveragesPerLoopPerHr.put(loopNr, map);
     }
 
     public QTable getLoggedQTable() {
         return loggedQTable;
+    }
+
+    public HashMap<Integer, Integer> getTotalTimeHeatingPerLoop() {
+        return totalTimeHeatingPerLoop;
+    }
+
+    public HashMap<Integer, HashMap<Integer, Integer>> getElectricityUsedPerLoopPerHr() {
+        return electricityUsedPerLoopPerHr;
+    }
+
+    public HashMap<Integer, HashMap<Integer, Float>> getTemperatureAveragesPerLoopPerHr() {
+        return temperatureAveragesPerLoopPerHr;
     }
 }

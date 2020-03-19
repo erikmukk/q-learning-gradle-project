@@ -10,7 +10,7 @@ public class ReadQTableClassContents {
         FileInputStream fi = new FileInputStream(new File("logfile.properties"));
         ObjectInputStream oi = new ObjectInputStream(fi);
         Logger logger = (Logger) oi.readObject();
-        QTable table = logger.getLoggedQTable();
+        //QTable table = logger.getLoggedQTable();
         /*for (String key : table.getqTable().keySet()) {
             float[] tbl = table.getqTable().get(key);
             for (float val : tbl) {
@@ -19,12 +19,19 @@ public class ReadQTableClassContents {
                 }
             }
         }*/
+        //System.out.println(logger.getElectricityUsedPerLoopPerHr());
+        //System.out.println(logger.getTemperatureAveragesPerLoopPerHr());
+        //System.out.println(logger.getTotalTimeHeatingPerLoop());
         //System.out.println(table.getAllEpisodeRewards());
-        /*for (Integer key : table.getAllEpisodeRewards().keySet()) {
-            System.out.println(table.getAllEpisodeRewards().get(key));
-        }*/
-        for (Integer key : logger.getLoggedEnvironments().keySet()) {
-            System.out.println(logger.getLoggedEnvironments().get(key).getHeatingTimeAndPriceMap());
+        /*FileWriter fileWriter = new FileWriter("episodeRewards.txt");
+        for (Integer key : table.getAllEpisodeRewards().keySet()) {
+            float value = table.getAllEpisodeRewards().get(key);
+            fileWriter.write(value + "\n");
         }
+        fileWriter.close();*/
+        //System.out.println(logger.getLoggedEnvironments().keySet().size());
+        /*for (Integer key : logger.getLoggedEnvironments().keySet()) {
+            System.out.println(logger.getLoggedEnvironments().get(key).getHeatingTimeAndPriceMap());
+        }*/
     }
 }

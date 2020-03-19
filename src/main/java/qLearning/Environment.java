@@ -15,8 +15,10 @@ public class Environment implements Serializable {
     HashMap<Integer, Float> electricityStockPrice;
     float averageStockPrice;
 
-    //HashMap<Iteration, HashMap<ElectricityPeriodHour, HeatedTimeInMins>>
-    HashMap<Integer, HashMap<Integer, Integer>> heatingTimeAndPriceMap;
+    //HashMap<ElectricityPeriodHour, HeatedTimeInMins>
+    HashMap<Integer, Integer> heatingTimeAndPriceMap;
+    //HashMap<PeriodHour, Temperature>
+    HashMap<Integer, Float> heatingPeriodAndAvgTempMap;
     public final int DO_NOTHING = 0;
     public final int HEAT = 1;
     public final int STOP_HEATING = 2;
@@ -29,6 +31,7 @@ public class Environment implements Serializable {
         this.outsideTemp = outsideTemp;
         this.targetTemp = targetTemp;
         this.heatingTimeAndPriceMap = new HashMap<>();
+        this.heatingPeriodAndAvgTempMap = new HashMap<>();
         initElectricityPrice();
     }
 
@@ -61,34 +64,47 @@ public class Environment implements Serializable {
         this.averageStockPrice = 27.58f;
     }
 
-    private void addTimeAndPrice(float time, int loopNr) {
+    private void addTimeAndPrice(int timeHr) {
+        // Increment heating duration
+        if (this.heatingTimeAndPriceMap.containsKey(timeHr)) {
+            int entry = this.heatingTimeAndPriceMap.get(timeHr);
+            entry += 30;
+            this.heatingTimeAndPriceMap.put(timeHr, entry);
+        } else {
+            this.heatingTimeAndPriceMap.put(timeHr, 30);
+        }
+
+    }
+
+    private void addTempAndTime(int timeHr) {
+        // Set temp times
+        if (this.heatingPeriodAndAvgTempMap.containsKey(timeHr)) {
+            float entry = this.heatingPeriodAndAvgTempMap.get(timeHr);
+            entry = (entry + this.insideTemp) / 2;
+            this.heatingPeriodAndAvgTempMap.put(timeHr, entry);
+        } else {
+            this.heatingPeriodAndAvgTempMap.put(timeHr, this.insideTemp);
+        }
+    }
+
+    public void takeAction(int choice, float time) {
         int timeHr = (int) (time / 3600);
         if (timeHr > 23) {
             timeHr = 23;
         }
-        // Increment heating duration in loop at x-time
-        if (this.heatingTimeAndPriceMap.containsKey(loopNr)) {
-            HashMap<Integer, Integer> entry = this.heatingTimeAndPriceMap.get(loopNr);
-            if (entry.containsKey(timeHr)) {
-                entry.put(timeHr, entry.get(timeHr) + 30);
-            } else {
-                entry.put(timeHr, 30);
-            } this.heatingTimeAndPriceMap.put(loopNr, entry);
-        } else {
-            HashMap<Integer, Integer> newEntry = new HashMap<>();
-            newEntry.put(timeHr, 30);
-            this.heatingTimeAndPriceMap.put(loopNr, newEntry);
-        }
-    }
-
-    public void takeAction(int choice, float time, int loopNr) {
         if (choice == HEAT) {
-            addTimeAndPrice(time, loopNr);
+            addTimeAndPrice(timeHr);
             this.isHeating = true;
             this.totalTimeHeating += 30;
         } else if (choice == STOP_HEATING) {
             this.isHeating = false;
+        } else {
+            if (this.isHeating) {
+                addTimeAndPrice(timeHr);
+                this.totalTimeHeating += 30;
+            }
         }
+        this.addTempAndTime(timeHr);
     }
 
     public int[] getActionSpace() {
@@ -147,8 +163,16 @@ public class Environment implements Serializable {
         return averageStockPrice;
     }
 
-    public HashMap<Integer, HashMap<Integer, Integer>> getHeatingTimeAndPriceMap() {
+    public HashMap<Integer, Integer> getHeatingTimeAndPriceMap() {
         return heatingTimeAndPriceMap;
+    }
+
+    public int getTotalTimeHeating() {
+        return totalTimeHeating;
+    }
+
+    public HashMap<Integer, Float> getHeatingPeriodAndAvgTempMap() {
+        return heatingPeriodAndAvgTempMap;
     }
 
     @Override

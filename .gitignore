@@ -3,8 +3,8 @@
 /.idea/
 /out/
 *.iml
-table*.properties
-logfile*
+*.properties
+*.txt
 
 gradle-app.setting
 
