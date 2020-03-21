@@ -7,6 +7,7 @@ import org.concord.energy2d.model.Thermometer;
 import org.concord.energy2d.model.Thermostat;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,17 +72,11 @@ public class QTable implements Serializable {
     }
 
     public String calculateQTableKey (float envInsideTemp, float envOutsideTemp, float insideTemp, float outsideTemp) {
-        if (envInsideTemp > maxInsideTemp) {
-            return aboveMaxInsideTempKey;
-        } else if (envInsideTemp < minInsideTemp) {
-            return belowMinInsideTempKey;
-        } else if (envOutsideTemp > maxOutsideTemp) {
-            return aboveMaxOutsideTempKey;
-        } else if (envOutsideTemp < minOutsideTemp) {
-            return belowMinOutsideTempKey;
-        } else {
-            return makeQTableKey(insideTemp, outsideTemp);
-        }
+        if (envInsideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
+        if (envInsideTemp < minInsideTemp) return belowMinInsideTempKey;
+        if (envOutsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
+        if (envOutsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
+        return makeQTableKey(insideTemp, outsideTemp);
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
@@ -142,6 +137,9 @@ public class QTable implements Serializable {
 
         // Get actions
         float[] _actions = this.qTable.get(qTableKey);
+        if (_actions == null) {
+            _actions = this.qTable.get(aboveMaxInsideTempKey);
+        }
         int calculatedAction;
         if (Math.random() > epsilon) {
             calculatedAction = findArgmax(_actions);
@@ -177,7 +175,12 @@ public class QTable implements Serializable {
         float envInsideTemp2 = environment.getInsideTemp();
         float envOutsideTemp2 = environment.getOutsideTemp();
         String qTableKey2 = calculateQTableKey(envInsideTemp2, envOutsideTemp2, insideTemp, outsideTemp);
-        float maxFutureQValue = findMax(qTable.get(qTableKey2));
+        float maxFutureQValue;
+        float[] _actions2 = qTable.get(qTableKey2);
+        if (_actions2 == null) {
+            _actions2 = qTable.get(aboveMaxInsideTempKey);
+        }
+        maxFutureQValue = findMax(_actions2);
         float currentQ = qTable.get(qTableKey2)[calculatedAction];
         float newQ;
         if (reward == CORRECT_HEATING_REWARD) {
