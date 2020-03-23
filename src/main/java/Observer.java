@@ -81,7 +81,6 @@ public class Observer implements PropertyChangeListener {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
             saxParser.parse(new InputSource(is), saxHandler);
-            System.out.println("AA");
         } catch (SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
