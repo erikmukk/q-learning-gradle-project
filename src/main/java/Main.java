@@ -64,7 +64,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         System.out.println("I am main class!");
-        String logfileName = "logfile.properties";
+        String logfileName = "logfile-inside-out-23-03-2020.properties";
         Logger logger = new Logger();
         float minOutsideTemp = -30f;
         float maxOutsideTemp = 40f;
@@ -82,6 +82,7 @@ public class Main {
         } catch (Exception e) {
             qTable = setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, environment.getActionSpace().length);
         }
+        System.out.println("QTable initialized");
 
         executor.execute(modelRunnable);
         float prevTime = 0;
@@ -91,7 +92,6 @@ public class Main {
                 Thread.sleep(1);
                 model2D.stop();
                 float time = model2D.getTime();
-                assert qTable != null;
                 if ((time % 1800 <= 10 & time > prevTime + 15) & time < 86400) {
                     qTable.doWhenXTimeHasPassed(environment, model2D);
                     prevTime = time;
