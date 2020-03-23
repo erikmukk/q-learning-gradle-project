@@ -24,6 +24,7 @@ public class Observer implements PropertyChangeListener {
     public Model2D model2D;
     public float targetTemp;
     public String logfileName;
+    public int loopLengthMins = 1;
 
     public Observer() throws Exception {
         this.model2D = new Model2D();
@@ -64,7 +65,7 @@ public class Observer implements PropertyChangeListener {
         } catch (Exception e) {
             outsideTemp = 0.0f;
         }
-        this.environment = new Environment(outsideTemp, insideTemp, targetTemp);
+        this.environment = new Environment(outsideTemp, insideTemp, targetTemp, this.loopLengthMins);
     }
 
     public void init() throws Exception {
@@ -103,7 +104,6 @@ public class Observer implements PropertyChangeListener {
     }
 
     public void calculateValues(float targetTemp, String logfileName) throws IOException {
-        System.out.println(this.model2D.getThermometer("inside").getCurrentData());
         float time = this.model2D.getTime();
         if (time % 1800 == 0 & time < 86400) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);

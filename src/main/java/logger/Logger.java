@@ -4,6 +4,7 @@ import qLearning.QTable;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 
 public class Logger implements Serializable {
 
@@ -11,7 +12,7 @@ public class Logger implements Serializable {
     // Map<Episode#, TimeHeating>
     HashMap<Integer, Integer> totalTimeHeatingPerLoop;
     HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr;
-    HashMap<Integer, HashMap<Integer, Float>> temperatureAveragesPerLoopPerHr;
+    HashMap<Integer, HashMap<Integer, List<Integer>>> temperatureAveragesPerLoopPerHr;
 
     public Logger() {
         this.totalTimeHeatingPerLoop = new HashMap<>();
@@ -31,7 +32,7 @@ public class Logger implements Serializable {
         this.electricityUsedPerLoopPerHr.put(loopNr, map);
     }
 
-    public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, Float> map) {
+    public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, List<Integer>> map) {
         this.temperatureAveragesPerLoopPerHr.put(loopNr, map);
     }
 
@@ -47,7 +48,7 @@ public class Logger implements Serializable {
         return electricityUsedPerLoopPerHr;
     }
 
-    public HashMap<Integer, HashMap<Integer, Float>> getTemperatureAveragesPerLoopPerHr() {
+    public HashMap<Integer, HashMap<Integer, List<Integer>>> getTemperatureAveragesPerLoopPerHr() {
         return temperatureAveragesPerLoopPerHr;
     }
 }

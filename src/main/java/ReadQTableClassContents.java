@@ -4,6 +4,7 @@ import qLearning.QTable;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class ReadQTableClassContents {
 
@@ -52,7 +53,7 @@ public class ReadQTableClassContents {
         fileWriter2.write("}");
         fileWriter2.close();
 
-        HashMap<Integer, HashMap<Integer, Float>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
+        HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
         FileWriter fileWriter4 = new FileWriter("tempAveragesPerLoopPerHr-23-03-2020.txt");
         fileWriter4.write("{"+ "\n");
         int keysetSize2 = tempAveragesPerLoopPerHr.keySet().size();

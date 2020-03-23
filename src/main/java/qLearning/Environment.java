@@ -3,7 +3,9 @@ package qLearning;
 import math.Helpers;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Environment implements Serializable {
     boolean humanPresence;
@@ -14,17 +16,18 @@ public class Environment implements Serializable {
     int totalTimeHeating = 0;
     HashMap<Integer, Float> electricityStockPrice;
     float averageStockPrice;
+    public int loopLengthMins;
 
     //HashMap<ElectricityPeriodHour, HeatedTimeInMins>
     HashMap<Integer, Integer> heatingTimeAndPriceMap;
     //HashMap<PeriodHour, Temperature>
-    HashMap<Integer, Float> heatingPeriodAndAvgTempMap;
+    HashMap<Integer, List<Integer>> heatingPeriodAndAvgTempMap;
     public final int DO_NOTHING = 0;
     public final int HEAT = 1;
     public final int STOP_HEATING = 2;
     private final int[] actionSpace = new int[]{HEAT, STOP_HEATING, DO_NOTHING};
 
-    public Environment(float outsideTemp, float insideTemp, float targetTemp) {
+    public Environment(float outsideTemp, float insideTemp, float targetTemp, int loopLength) {
         this.humanPresence = Helpers.getRandomBoolean();
         this.isHeating = Helpers.getRandomBoolean();
         this.insideTemp = insideTemp;
@@ -32,6 +35,7 @@ public class Environment implements Serializable {
         this.targetTemp = targetTemp;
         this.heatingTimeAndPriceMap = new HashMap<>();
         this.heatingPeriodAndAvgTempMap = new HashMap<>();
+        this.loopLengthMins = loopLengthMins;
         initElectricityPrice();
     }
 
@@ -68,7 +72,7 @@ public class Environment implements Serializable {
         // Increment heating duration
         if (this.heatingTimeAndPriceMap.containsKey(timeHr)) {
             int entry = this.heatingTimeAndPriceMap.get(timeHr);
-            entry += 30;
+            entry += this.loopLengthMins;
             this.heatingTimeAndPriceMap.put(timeHr, entry);
         } else {
             this.heatingTimeAndPriceMap.put(timeHr, 30);
@@ -79,11 +83,13 @@ public class Environment implements Serializable {
     private void addTempAndTime(int timeHr) {
         // Set temp times
         if (this.heatingPeriodAndAvgTempMap.containsKey(timeHr)) {
-            float entry = this.heatingPeriodAndAvgTempMap.get(timeHr);
-            entry = (entry + this.insideTemp) / 2;
+            List<Integer> entry = this.heatingPeriodAndAvgTempMap.get(timeHr);
+            entry.add(this.loopLengthMins);
             this.heatingPeriodAndAvgTempMap.put(timeHr, entry);
         } else {
-            this.heatingPeriodAndAvgTempMap.put(timeHr, this.insideTemp);
+            List<Integer> e = new ArrayList<>();
+            e.add(this.loopLengthMins);
+            this.heatingPeriodAndAvgTempMap.put(timeHr, e);
         }
     }
 
@@ -95,13 +101,13 @@ public class Environment implements Serializable {
         if (choice == HEAT) {
             addTimeAndPrice(timeHr);
             this.isHeating = true;
-            this.totalTimeHeating += 30;
+            this.totalTimeHeating += this.loopLengthMins;
         } else if (choice == STOP_HEATING) {
             this.isHeating = false;
         } else {
             if (this.isHeating) {
                 addTimeAndPrice(timeHr);
-                this.totalTimeHeating += 30;
+                this.totalTimeHeating += this.loopLengthMins;
             }
         }
         this.addTempAndTime(timeHr);
@@ -171,7 +177,7 @@ public class Environment implements Serializable {
         return totalTimeHeating;
     }
 
-    public HashMap<Integer, Float> getHeatingPeriodAndAvgTempMap() {
+    public HashMap<Integer, List<Integer>> getHeatingPeriodAndAvgTempMap() {
         return heatingPeriodAndAvgTempMap;
     }
 
