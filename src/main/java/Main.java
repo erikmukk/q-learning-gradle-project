@@ -71,8 +71,10 @@ public class Main {
         float minInsideTemp = 0f;
         float maxInsideTemp = 40f;
         float targetTemp = 20f;
+
         Model modelRunnable = new Model("src/main/resources/test-heating-sun-2.e2d");
         ExecutorService executor = Executors.newFixedThreadPool(1);
+
         Model2D model2D = modelRunnable.getModel2D();
         setupModel2D(model2D);
         Environment environment = setupEnvironment(model2D, targetTemp);
