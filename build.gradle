@@ -33,4 +33,5 @@ dependencies {
     compile files('./libs/energy2d.jar')
     // https://mvnrepository.com/artifact/org.nd4j/nd4j-native-platform
     compile group: 'org.nd4j', name: 'nd4j-native-platform', version: '1.0.0-beta6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
 }

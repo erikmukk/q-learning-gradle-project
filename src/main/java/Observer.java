@@ -104,7 +104,7 @@ public class Observer implements PropertyChangeListener {
 
     public void calculateValues(float targetTemp, String logfileName) throws IOException {
         float time = this.model2D.getTime();
-        if (time % 1800 == 0 & time < 86400) {
+        if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
         }
         if (time >= 86400) {

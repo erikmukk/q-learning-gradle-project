@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
 import logger.Logger;
 import qLearning.QTable;
 
@@ -9,8 +10,9 @@ import java.util.List;
 public class ReadQTableClassContents {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        FileInputStream fi = new FileInputStream(new File("logfile-inside-out-23-03-2020.properties"));
+        FileInputStream fi = new FileInputStream(new File("logfile-24-03-2020.properties"));
         ObjectInputStream oi = new ObjectInputStream(fi);
+        ObjectMapper mapper = new ObjectMapper();
         Logger logger = (Logger) oi.readObject();
 
         QTable table = logger.getLoggedQTable();
@@ -22,14 +24,14 @@ public class ReadQTableClassContents {
                 }
             }
         }*/
-        FileWriter fileWriter = new FileWriter("episodeRewards-23-03-2020.txt");
+        /*FileWriter fileWriter = new FileWriter("episodeRewards-23-03-2020.txt");
         for (Integer key : table.getAllEpisodeRewards().keySet()) {
             float value = table.getAllEpisodeRewards().get(key);
             fileWriter.write(value + "\n");
         }
-        fileWriter.close();
+        fileWriter.close();*/
 
-        HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
+        /*HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
         FileWriter fileWriter2 = new FileWriter("electricityUsedPerLoopPerHr-23-03-2020.txt");
         fileWriter2.write("{"+ "\n");
         int keysetSize = electricityUsedPerLoopPerHr.keySet().size();
@@ -51,9 +53,9 @@ public class ReadQTableClassContents {
             fileWriter2.write(outputString + "\n");
         }
         fileWriter2.write("}");
-        fileWriter2.close();
+        fileWriter2.close();*/
 
-        HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
+        /*HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
         FileWriter fileWriter4 = new FileWriter("tempAveragesPerLoopPerHr-23-03-2020.txt");
         fileWriter4.write("{"+ "\n");
         int keysetSize2 = tempAveragesPerLoopPerHr.keySet().size();
@@ -75,14 +77,27 @@ public class ReadQTableClassContents {
             fileWriter4.write(outputString + "\n");
         }
         fileWriter4.write("}");
-        fileWriter4.close();
+        fileWriter4.close();*/
+        // Jackson implementation of above
+        /*HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
+        try {
+            mapper.writeValue(new File("tempAverages-24-03-2020.json"), tempAveragesPerLoopPerHr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
 
-        HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
+        /*HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
         FileWriter fileWriter3 = new FileWriter("totalTimeHeatingPerLoop-23-03-2020.txt");
         for (Integer key : totalTimeHeatingPerLoop.keySet()) {
             float value = totalTimeHeatingPerLoop.get(key);
             fileWriter3.write(value + "\n");
         }
-        fileWriter3.close();
+        fileWriter3.close();*/
+        /*HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
+        try {
+            mapper.writeValue(new File("totalTimeHeating-24-03-2020.json"), totalTimeHeatingPerLoop);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
     }
 }

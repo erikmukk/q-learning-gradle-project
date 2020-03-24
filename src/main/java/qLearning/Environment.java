@@ -4,6 +4,7 @@ import math.Helpers;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class Environment implements Serializable {
     //HashMap<ElectricityPeriodHour, HeatedTimeInMins>
     HashMap<Integer, Integer> heatingTimeAndPriceMap;
     //HashMap<PeriodHour, Temperature>
-    HashMap<Integer, List<Integer>> heatingPeriodAndAvgTempMap;
+    HashMap<Integer, List<Float>> heatingPeriodAndAvgTempMap;
     public final int DO_NOTHING = 0;
     public final int HEAT = 1;
     public final int STOP_HEATING = 2;
@@ -35,7 +36,7 @@ public class Environment implements Serializable {
         this.targetTemp = targetTemp;
         this.heatingTimeAndPriceMap = new HashMap<>();
         this.heatingPeriodAndAvgTempMap = new HashMap<>();
-        this.loopLengthMins = loopLengthMins;
+        this.loopLengthMins = loopLength;
         initElectricityPrice();
     }
 
@@ -75,7 +76,7 @@ public class Environment implements Serializable {
             entry += this.loopLengthMins;
             this.heatingTimeAndPriceMap.put(timeHr, entry);
         } else {
-            this.heatingTimeAndPriceMap.put(timeHr, 30);
+            this.heatingTimeAndPriceMap.put(timeHr, this.loopLengthMins);
         }
 
     }
@@ -83,12 +84,12 @@ public class Environment implements Serializable {
     private void addTempAndTime(int timeHr) {
         // Set temp times
         if (this.heatingPeriodAndAvgTempMap.containsKey(timeHr)) {
-            List<Integer> entry = this.heatingPeriodAndAvgTempMap.get(timeHr);
-            entry.add(this.loopLengthMins);
+            List<Float> entry = this.heatingPeriodAndAvgTempMap.get(timeHr);
+            entry.add(this.insideTemp);
             this.heatingPeriodAndAvgTempMap.put(timeHr, entry);
         } else {
-            List<Integer> e = new ArrayList<>();
-            e.add(this.loopLengthMins);
+            List<Float> e = new ArrayList<>();
+            e.add(this.insideTemp);
             this.heatingPeriodAndAvgTempMap.put(timeHr, e);
         }
     }
@@ -177,7 +178,7 @@ public class Environment implements Serializable {
         return totalTimeHeating;
     }
 
-    public HashMap<Integer, List<Integer>> getHeatingPeriodAndAvgTempMap() {
+    public HashMap<Integer, List<Float>> getHeatingPeriodAndAvgTempMap() {
         return heatingPeriodAndAvgTempMap;
     }
 

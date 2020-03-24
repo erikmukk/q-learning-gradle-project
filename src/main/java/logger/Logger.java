@@ -12,7 +12,7 @@ public class Logger implements Serializable {
     // Map<Episode#, TimeHeating>
     HashMap<Integer, Integer> totalTimeHeatingPerLoop;
     HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr;
-    HashMap<Integer, HashMap<Integer, List<Integer>>> temperatureAveragesPerLoopPerHr;
+    HashMap<Integer, HashMap<Integer, List<Float>>> temperatureAveragesPerLoopPerHr;
 
     public Logger() {
         this.totalTimeHeatingPerLoop = new HashMap<>();
@@ -32,7 +32,7 @@ public class Logger implements Serializable {
         this.electricityUsedPerLoopPerHr.put(loopNr, map);
     }
 
-    public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, List<Integer>> map) {
+    public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, List<Float>> map) {
         this.temperatureAveragesPerLoopPerHr.put(loopNr, map);
     }
 
@@ -48,7 +48,7 @@ public class Logger implements Serializable {
         return electricityUsedPerLoopPerHr;
     }
 
-    public HashMap<Integer, HashMap<Integer, List<Integer>>> getTemperatureAveragesPerLoopPerHr() {
+    public HashMap<Integer, HashMap<Integer, List<Float>>> getTemperatureAveragesPerLoopPerHr() {
         return temperatureAveragesPerLoopPerHr;
     }
 }
