@@ -6,11 +6,12 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReadQTableClassContents {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        FileInputStream fi = new FileInputStream(new File("logfile-24-03-2020.properties"));
+        FileInputStream fi = new FileInputStream(new File("logfile-26-03-2020.properties"));
         ObjectInputStream oi = new ObjectInputStream(fi);
         ObjectMapper mapper = new ObjectMapper();
         Logger logger = (Logger) oi.readObject();
@@ -24,80 +25,37 @@ public class ReadQTableClassContents {
                 }
             }
         }*/
-        /*FileWriter fileWriter = new FileWriter("episodeRewards-23-03-2020.txt");
-        for (Integer key : table.getAllEpisodeRewards().keySet()) {
-            float value = table.getAllEpisodeRewards().get(key);
-            fileWriter.write(value + "\n");
-        }
-        fileWriter.close();*/
 
-        /*HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
-        FileWriter fileWriter2 = new FileWriter("electricityUsedPerLoopPerHr-23-03-2020.txt");
-        fileWriter2.write("{"+ "\n");
-        int keysetSize = electricityUsedPerLoopPerHr.keySet().size();
-        for (Integer key : electricityUsedPerLoopPerHr.keySet()) {
-            String outputString = "\"" + key.toString() + "\":";
-            if (electricityUsedPerLoopPerHr.get(key).toString().length() > 2) {
-                String dictString = electricityUsedPerLoopPerHr.get(key).toString()
-                        .replace("=", "\":\"")
-                        .replace(", ", "\",\"")
-                        .replace("{", "{\"")
-                        .replace("}", "\"}");
-                outputString += dictString;
-            } else {
-                outputString += electricityUsedPerLoopPerHr.get(key).toString();
-            }
-            if (key != keysetSize) {
-                outputString += ",";
-            }
-            fileWriter2.write(outputString + "\n");
-        }
-        fileWriter2.write("}");
-        fileWriter2.close();*/
-
-        /*HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
-        FileWriter fileWriter4 = new FileWriter("tempAveragesPerLoopPerHr-23-03-2020.txt");
-        fileWriter4.write("{"+ "\n");
-        int keysetSize2 = tempAveragesPerLoopPerHr.keySet().size();
-        for (Integer key : tempAveragesPerLoopPerHr.keySet()) {
-            String outputString = "\"" + key.toString() + "\":";
-            if (tempAveragesPerLoopPerHr.get(key).toString().length() > 2) {
-                String dictString = tempAveragesPerLoopPerHr.get(key).toString()
-                        .replace("=", "\":\"")
-                        .replace(", ", "\",\"")
-                        .replace("{", "{\"")
-                        .replace("}", "\"}");
-                outputString += dictString;
-            } else {
-                outputString += tempAveragesPerLoopPerHr.get(key).toString();
-            }
-            if (key != keysetSize2) {
-                outputString += ",";
-            }
-            fileWriter4.write(outputString + "\n");
-        }
-        fileWriter4.write("}");
-        fileWriter4.close();*/
-        // Jackson implementation of above
-        /*HashMap<Integer, HashMap<Integer, List<Integer>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
+        Map<Integer, Float> rewards = table.getAllEpisodeRewards();
         try {
-            mapper.writeValue(new File("tempAverages-24-03-2020.json"), tempAveragesPerLoopPerHr);
+            mapper.writeValue(new File("rewards-26-03-2020.json"), rewards);
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
-
-        /*HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
-        FileWriter fileWriter3 = new FileWriter("totalTimeHeatingPerLoop-23-03-2020.txt");
-        for (Integer key : totalTimeHeatingPerLoop.keySet()) {
-            float value = totalTimeHeatingPerLoop.get(key);
-            fileWriter3.write(value + "\n");
         }
-        fileWriter3.close();*/
-        /*HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
+
+
+        HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
         try {
-            mapper.writeValue(new File("totalTimeHeating-24-03-2020.json"), totalTimeHeatingPerLoop);
+            mapper.writeValue(new File("electricityUsed-26-03-2020.json"), electricityUsedPerLoopPerHr);
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
+
+
+
+        HashMap<Integer, HashMap<Integer, List<Float>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
+        try {
+            mapper.writeValue(new File("tempAverages-26-03-2020.json"), tempAveragesPerLoopPerHr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
+        try {
+            mapper.writeValue(new File("totalTimeHeating-26-03-2020.json"), totalTimeHeatingPerLoop);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

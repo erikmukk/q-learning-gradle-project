@@ -118,6 +118,7 @@ public class QTable implements Serializable {
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
+        float targetTemp = environment.targetTemp;
         float insideTemp;
         float outsideTemp;
         try {
@@ -159,18 +160,18 @@ public class QTable implements Serializable {
         environment.setOutsideTemp(outsideTemp);
 
         // Calculate episode rewards
+        // TODO: Here I changed reard to new system
+        reward += Math.abs(targetTemp - insideTemp) * -1;
         if (wantedAction == calculatedAction) {
-            reward += CORRECT_HEATING_REWARD;
+            //reward += CORRECT_HEATING_REWARD;
             this.prevCorrect += 1;
             this.correct += 1;
         } else {
-            reward += INCORRECT_HEATING_PENALTY;
+            //reward += INCORRECT_HEATING_PENALTY;
             this.prevIncorrect += 1;
             this.incorrect += 1;
         }
-
         reward += electricityPriceReward(model2D.getTime(), calculatedAction, environment);
-
         // Calculate qTable values
         float envInsideTemp2 = environment.getInsideTemp();
         float envOutsideTemp2 = environment.getOutsideTemp();
@@ -183,7 +184,8 @@ public class QTable implements Serializable {
         maxFutureQValue = findMax(_actions2);
         float currentQ = qTable.get(qTableKey2)[calculatedAction];
         float newQ;
-        if (reward == CORRECT_HEATING_REWARD) {
+        // TODO: Here I changed reard to new system
+        if (Math.abs(reward) >= 0) {
             newQ = CORRECT_HEATING_REWARD;
         } else {
             newQ = (1 - LEARNING_RATE) * currentQ + LEARNING_RATE * (reward + DISCOUNT * maxFutureQValue);

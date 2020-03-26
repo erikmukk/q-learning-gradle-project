@@ -119,7 +119,15 @@ public class Environment implements Serializable {
     }
 
     public int getCorrectAction() {
-        if (this.isHeating) {
+        if (this.insideTemp > this.targetTemp) {
+            return STOP_HEATING;
+        } else {
+            if (this.outsideTemp > this.targetTemp) {
+                return STOP_HEATING;
+            }
+            return HEAT;
+        }
+        /*if (this.isHeating) {
             if (this.outsideTemp > this.insideTemp) {
                 if (this.outsideTemp > this.targetTemp) {
                     return STOP_HEATING;
@@ -143,7 +151,7 @@ public class Environment implements Serializable {
                 }
             }
             return HEAT;
-        }
+        }*/
     }
 
     public float getInsideTemp() {
