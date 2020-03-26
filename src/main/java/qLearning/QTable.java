@@ -26,8 +26,8 @@ public class QTable implements Serializable {
     private float episodeReward = 0;
 
     private static final int CORRECT_HEATING_REWARD = 100;
-    private static final int GOOD_ELECTRICITY_PRICE_REWARD = 25;
-    private static final int BAD_ELECTRICITY_PRICE_PENALTY = -50;
+    private static final int GOOD_ELECTRICITY_PRICE_REWARD = 10;
+    private static final int BAD_ELECTRICITY_PRICE_PENALTY = -10;
     private static final int INCORRECT_HEATING_PENALTY = -400;
     private static final float EPS_DECAY = 0.99f;
     private static final float LEARNING_RATE = 0.1f;
@@ -185,7 +185,7 @@ public class QTable implements Serializable {
         float currentQ = qTable.get(qTableKey2)[calculatedAction];
         float newQ;
         // TODO: Here I changed reard to new system
-        if (Math.abs(reward) >= 0) {
+        if (reward >= -5) {
             newQ = CORRECT_HEATING_REWARD;
         } else {
             newQ = (1 - LEARNING_RATE) * currentQ + LEARNING_RATE * (reward + DISCOUNT * maxFutureQValue);
