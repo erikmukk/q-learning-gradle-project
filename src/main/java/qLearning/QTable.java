@@ -184,9 +184,9 @@ public class QTable implements Serializable {
         maxFutureQValue = findMax(_actions2);
         float currentQ = qTable.get(qTableKey2)[calculatedAction];
         float newQ;
-        // TODO: Here I changed reard to new system
+        // TODO: Here I changed reward to new system
         if (reward >= -5) {
-            newQ = CORRECT_HEATING_REWARD;
+            newQ = reward;
         } else {
             newQ = (1 - LEARNING_RATE) * currentQ + LEARNING_RATE * (reward + DISCOUNT * maxFutureQValue);
         }
