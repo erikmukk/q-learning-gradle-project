@@ -112,7 +112,7 @@ public class QTable implements Serializable {
         if (action == env.HEAT) {
             // TODO: If heating, reward is (avg. price + 10 - current price) * 0.2. Multiplying by 0.2 to
             // make it less important than correct heating rewards
-            return (env.getAverageStockPrice() + 10 - electricityPrice) * 0.2;
+            return Math.abs(env.getAverageStockPrice() + 10 - electricityPrice) * -0.2;
         }
         return 0;
     }
@@ -203,7 +203,7 @@ public class QTable implements Serializable {
 
         // Calculate episode rewards
         // TODO: Here I changed reward to new system
-        reward += Math.abs(targetTemp - insideTemp) * -1;
+        reward += Math.abs(targetTemp - insideTemp) * -3;
         if (wantedAction == calculatedAction) {
             //reward += CORRECT_HEATING_REWARD;
             this.prevCorrect += 1;
