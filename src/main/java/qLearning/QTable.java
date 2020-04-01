@@ -95,7 +95,14 @@ public class QTable implements Serializable {
         this.prevIncorrect = 0;
     }
 
-    private int electricityPriceReward(float time, int action, Environment env) {
+    public void endTestIteration(Logger logger, Environment environment) {
+        logger.addToTotalTimeHeatingPerLoop(this.loops, environment.getTotalTimeHeating());
+        logger.addToElectricityUsedPerLoopPerHr(this.loops, environment.getHeatingTimeAndPriceMap());
+        logger.addToTemperatureAveragesPerLoopPerHr(this.loops, environment.getHeatingPeriodAndAvgTempMap());
+        logger.addLoggedQTable(this);
+    }
+
+    private double electricityPriceReward(float time, int action, Environment env) {
         int timeHr = (int) (time / 36000);
         if (timeHr > 23) {
             timeHr = 23;
@@ -103,13 +110,48 @@ public class QTable implements Serializable {
         HashMap<Integer, Float> prices = env.getElectricityStockPrice();
         float electricityPrice = prices.get(timeHr);
         if (action == env.HEAT) {
-            if (electricityPrice > env.getAverageStockPrice() + 10) {
-                return BAD_ELECTRICITY_PRICE_PENALTY;
-            } else {
-                return GOOD_ELECTRICITY_PRICE_REWARD;
-            }
+            // TODO: If heating, reward is (avg. price + 10 - current price) * 0.2. Multiplying by 0.2 to
+            // make it less important than correct heating rewards
+            return (env.getAverageStockPrice() + 10 - electricityPrice) * 0.2;
         }
         return 0;
+    }
+
+    public void doWhenXTimeHasPassedForOneIterationTest(Environment environment, Model2D model2D) {
+        Thermometer insideThermometer = model2D.getThermometer("inside");
+        Thermometer outsideThermometer = model2D.getThermometer("outside");
+        Thermostat insideThermostat = model2D.getThermostats().get(0);
+        float targetTemp = environment.targetTemp;
+        float insideTemp;
+        float outsideTemp;
+        try {
+            insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
+        } catch (Exception e) {
+            insideTemp = 0.0f;
+        }
+        try {
+            outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
+        } catch (Exception e) {
+            outsideTemp = 0.0f;
+        }
+        float envInsideTemp = environment.getInsideTemp();
+        float envOutsideTemp = environment.getOutsideTemp();
+        String qTableKey = calculateQTableKey(envInsideTemp, envOutsideTemp, insideTemp, outsideTemp);
+
+        // Get actions
+        float[] _actions = this.qTable.get(qTableKey);
+        if (_actions == null) {
+            _actions = this.qTable.get(aboveMaxInsideTempKey);
+        }
+        // Find action according to qTable
+        int calculatedAction = findArgmax(_actions);
+        if (calculatedAction == environment.HEAT) {
+            insideThermostat.getPowerSource().setPowerSwitch(true);
+        } else if (calculatedAction == environment.STOP_HEATING) {
+            insideThermostat.getPowerSource().setPowerSwitch(false);
+        }
+        // Take action
+        environment.takeAction(calculatedAction, model2D.getTime());
     }
 
     public void doWhenXTimeHasPassed(Environment environment, Model2D model2D) {
@@ -160,7 +202,7 @@ public class QTable implements Serializable {
         environment.setOutsideTemp(outsideTemp);
 
         // Calculate episode rewards
-        // TODO: Here I changed reard to new system
+        // TODO: Here I changed reward to new system
         reward += Math.abs(targetTemp - insideTemp) * -1;
         if (wantedAction == calculatedAction) {
             //reward += CORRECT_HEATING_REWARD;
@@ -183,13 +225,8 @@ public class QTable implements Serializable {
         }
         maxFutureQValue = findMax(_actions2);
         float currentQ = qTable.get(qTableKey2)[calculatedAction];
-        float newQ;
-        // TODO: Here I changed reward to new system
-        if (reward >= -5) {
-            newQ = reward;
-        } else {
-            newQ = (1 - LEARNING_RATE) * currentQ + LEARNING_RATE * (reward + DISCOUNT * maxFutureQValue);
-        }
+        float newQ = (1 - LEARNING_RATE) * currentQ + LEARNING_RATE * (reward + DISCOUNT * maxFutureQValue);
+
         // Set new qTable values
         float[] tempValues = qTable.get(qTableKey2);
         tempValues[calculatedAction] = newQ;

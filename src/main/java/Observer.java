@@ -119,12 +119,26 @@ public class Observer implements PropertyChangeListener {
             }
         }
     }
+    public void calculateValuesForTest(float targetTemp, String logfileName) throws IOException {
+        float time = this.model2D.getTime();
+        if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
+            this.qTable.doWhenXTimeHasPassedForOneIterationTest(this.environment, this.model2D);
+        }
+        if (time >= 86400) {
+            this.qTable.doWhenXTimeHasPassedForOneIterationTest(this.environment, this.model2D);
+            this.qTable.endTestIteration(this.logger, this.environment);
+            writeIntoFile(this.logger, logfileName);
+            System.out.println("Testing finished");
+        }
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         this.model2D.stop();
         try {
             calculateValues(this.targetTemp, this.logfileName);
+            /*calculateValuesForTest(this.targetTemp, this.logfileName);
+            System.exit(0);*/
         } catch (Exception e) {
             e.printStackTrace();
         }
