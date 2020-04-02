@@ -101,7 +101,7 @@ public class Observer implements PropertyChangeListener {
             setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
         }
         System.out.println("QTable initialized");
-        this.qTable.doAStepWithoutCalculation(this.environment, this.model2D);
+        this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
         this.model2D.run();
     }
 
@@ -116,6 +116,7 @@ public class Observer implements PropertyChangeListener {
         float time = this.model2D.getTime();
         if (time % (this.loopLengthMins*60) == 0 & time < 86400 & time != 0) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
+            this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
         }
         if (time >= 86400) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
@@ -127,8 +128,8 @@ public class Observer implements PropertyChangeListener {
                 writeIntoFile(this.logger, logfileName);
                 System.out.println("50 iterations added!\t" + this.qTable.getLoops() + "loops completed");
             }
+            this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
         }
-        this.qTable.doAStepWithoutCalculation(this.environment, this.model2D);
         this.model2D.resume();
     }
     public void calculateValuesForTest(float targetTemp, String logfileName) throws IOException {
@@ -141,6 +142,7 @@ public class Observer implements PropertyChangeListener {
             this.qTable.endTestIteration(this.logger, this.environment);
             writeIntoFile(this.logger, logfileName);
             System.out.println("Testing finished");
+            System.exit(0);
         }
     }
 
@@ -150,8 +152,7 @@ public class Observer implements PropertyChangeListener {
         this.model2D.stop();
         try {
             calculateValues(this.targetTemp, this.logfileName);
-            /*calculateValuesForTest(this.targetTemp, this.logfileName);
-            System.exit(0);*/
+            //calculateValuesForTest(this.targetTemp, this.logfileName);
         } catch (Exception e) {
             e.printStackTrace();
         }
