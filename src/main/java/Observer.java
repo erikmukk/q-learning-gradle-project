@@ -15,6 +15,8 @@ import javax.xml.parsers.SAXParserFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Observer implements PropertyChangeListener {
 
@@ -39,8 +41,8 @@ public class Observer implements PropertyChangeListener {
         this.model2D.getThermostats().get(0).setSetPoint(20f);
     }
 
-    private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
-        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
+    private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
+        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice);
     }
 
     private void setupQTable(String filename) throws Exception {
@@ -89,7 +91,14 @@ public class Observer implements PropertyChangeListener {
         try {
             setupQTable(this.logfileName);
         } catch (Exception e) {
-            setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length);
+            HashMap<Integer, Float> electricityStockPrice = this.environment.getElectricityStockPrice();
+            float maxElectricityValue = 0;
+            for (Map.Entry<Integer, Float> entry : electricityStockPrice.entrySet()) {
+                if (entry.getValue() > maxElectricityValue) {
+                    maxElectricityValue = entry.getValue();
+                }
+            }
+            setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
         }
         System.out.println("QTable initialized");
         this.model2D.run();

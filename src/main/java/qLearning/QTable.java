@@ -2,6 +2,7 @@ package qLearning;
 
 import logger.Logger;
 import math.Helpers;
+import math.Normalization;
 import org.concord.energy2d.model.Model2D;
 import org.concord.energy2d.model.Thermometer;
 import org.concord.energy2d.model.Thermostat;
@@ -41,8 +42,13 @@ public class QTable implements Serializable {
     public int loops = 0;
     public int iterationLoops = 0;
 
-    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
+    Normalization tempNormalization;
+    Normalization electricityPriceNormalization;
+
+    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
         initQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
+        this.tempNormalization = new Normalization(maxOutsideTemp, 0, 0f, 1f);
+        this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
     }
 
     private void initQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
@@ -103,16 +109,14 @@ public class QTable implements Serializable {
     }
 
     private double electricityPriceReward(float time, int action, Environment env) {
-        int timeHr = (int) (time / 36000);
+        int timeHr = (int) (time / 3600);
         if (timeHr > 23) {
             timeHr = 23;
         }
         HashMap<Integer, Float> prices = env.getElectricityStockPrice();
         float electricityPrice = prices.get(timeHr);
         if (action == env.HEAT) {
-            // TODO: If heating, reward is (avg. price + 10 - current price) * 0.2. Multiplying by 0.2 to
-            // make it less important than correct heating rewards
-            return Math.abs(env.getAverageStockPrice() + 10 - electricityPrice) * -0.2;
+            return Math.abs(env.getAverageStockPrice() - electricityPrice);
         }
         return 0;
     }
@@ -202,8 +206,8 @@ public class QTable implements Serializable {
         environment.setOutsideTemp(outsideTemp);
 
         // Calculate episode rewards
-        // TODO: Here I changed reward to new system
-        reward += Math.abs(targetTemp - insideTemp) * -3;
+        // TODO: Here I changed to normalization [0, 1]
+        reward += this.tempNormalization.normalize(targetTemp - insideTemp);
         if (wantedAction == calculatedAction) {
             //reward += CORRECT_HEATING_REWARD;
             this.prevCorrect += 1;
@@ -213,7 +217,8 @@ public class QTable implements Serializable {
             this.prevIncorrect += 1;
             this.incorrect += 1;
         }
-        reward += electricityPriceReward(model2D.getTime(), calculatedAction, environment);
+        // TODO: Here I changed to normalization [0, 1] * 0.2
+        reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * 0.2;
         // Calculate qTable values
         float envInsideTemp2 = environment.getInsideTemp();
         float envOutsideTemp2 = environment.getOutsideTemp();
