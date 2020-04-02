@@ -35,10 +35,10 @@ public class Observer implements PropertyChangeListener {
     }
 
     private void setupModel2D() {
-        this.model2D.setTimeStep(5f);
-        //this.model2D.setTimeStep(10f);
-        this.model2D.getThermostats().get(0).setDeadband(2f);
-        this.model2D.getThermostats().get(0).setSetPoint(20f);
+        //this.model2D.setTimeStep(5f);
+        this.model2D.setTimeStep(10f);
+        this.model2D.getThermostats().get(0).setDeadband(200f);
+        this.model2D.getThermostats().get(0).setSetPoint(200f);
     }
 
     private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
@@ -101,6 +101,7 @@ public class Observer implements PropertyChangeListener {
             setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
         }
         System.out.println("QTable initialized");
+        this.qTable.doAStepWithoutCalculation(this.environment, this.model2D);
         this.model2D.run();
     }
 
@@ -113,7 +114,7 @@ public class Observer implements PropertyChangeListener {
 
     public void calculateValues(float targetTemp, String logfileName) throws IOException {
         float time = this.model2D.getTime();
-        if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
+        if (time % (this.loopLengthMins*60) == 0 & time < 86400 & time != 0) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
         }
         if (time >= 86400) {
@@ -127,6 +128,8 @@ public class Observer implements PropertyChangeListener {
                 System.out.println("50 iterations added!\t" + this.qTable.getLoops() + "loops completed");
             }
         }
+        this.qTable.doAStepWithoutCalculation(this.environment, this.model2D);
+        this.model2D.resume();
     }
     public void calculateValuesForTest(float targetTemp, String logfileName) throws IOException {
         float time = this.model2D.getTime();
@@ -141,6 +144,7 @@ public class Observer implements PropertyChangeListener {
         }
     }
 
+    // After every minute, program is stopped
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         this.model2D.stop();
@@ -151,6 +155,6 @@ public class Observer implements PropertyChangeListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.model2D.resume();
+
     }
 }

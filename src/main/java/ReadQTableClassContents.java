@@ -11,7 +11,7 @@ import java.util.Map;
 public class ReadQTableClassContents {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        FileInputStream fi = new FileInputStream(new File("logfile-27-03-2020.properties"));
+        FileInputStream fi = new FileInputStream(new File("logfile-02-04-2020-2.properties"));
         ObjectInputStream oi = new ObjectInputStream(fi);
         ObjectMapper mapper = new ObjectMapper();
         Logger logger = (Logger) oi.readObject();
@@ -28,7 +28,7 @@ public class ReadQTableClassContents {
 
         Map<Integer, Float> rewards = table.getAllEpisodeRewards();
         try {
-            mapper.writeValue(new File("rewards-27-03-2020.json"), rewards);
+            mapper.writeValue(new File("rewards-02-04-2020-2.json"), rewards);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,7 +36,7 @@ public class ReadQTableClassContents {
 
         HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
         try {
-            mapper.writeValue(new File("electricityUsed-27-03-2020.json"), electricityUsedPerLoopPerHr);
+            mapper.writeValue(new File("electricityUsed-02-04-2020-2.json"), electricityUsedPerLoopPerHr);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class ReadQTableClassContents {
 
         HashMap<Integer, HashMap<Integer, List<Float>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
         try {
-            mapper.writeValue(new File("tempAverages-27-03-2020.json"), tempAveragesPerLoopPerHr);
+            mapper.writeValue(new File("tempAverages-02-04-2020-2.json"), tempAveragesPerLoopPerHr);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +53,7 @@ public class ReadQTableClassContents {
 
         HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
         try {
-            mapper.writeValue(new File("totalTimeHeating-27-03-2020.json"), totalTimeHeatingPerLoop);
+            mapper.writeValue(new File("totalTimeHeating-02-04-2020-2.json"), totalTimeHeatingPerLoop);
         } catch (Exception e) {
             e.printStackTrace();
         }
