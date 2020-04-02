@@ -1,6 +1,8 @@
 package math;
 
-public class Normalization {
+import java.io.Serializable;
+
+public class Normalization implements Serializable {
     float dataHigh;
     float dataLow;
     float normalizedHigh;
