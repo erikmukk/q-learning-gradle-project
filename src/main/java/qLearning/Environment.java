@@ -23,10 +23,11 @@ public class Environment implements Serializable {
     HashMap<Integer, Integer> heatingTimeAndPriceMap;
     //HashMap<PeriodHour, Temperature>
     HashMap<Integer, List<Float>> heatingPeriodAndAvgTempMap;
-    public final int DO_NOTHING = 0;
-    public final int HEAT = 1;
-    public final int STOP_HEATING = 2;
-    private final int[] actionSpace = new int[]{HEAT, STOP_HEATING, DO_NOTHING};
+    public final int DO_NOTHING = 2;
+    public final int HEAT = 0;
+    public final int STOP_HEATING = 1;
+    //private final int[] actionSpace = new int[]{HEAT, STOP_HEATING, DO_NOTHING};
+    private final int[] actionSpace = new int[]{HEAT, STOP_HEATING};
 
     public Environment(float outsideTemp, float insideTemp, float targetTemp, int loopLength) {
         this.humanPresence = Helpers.getRandomBoolean();
