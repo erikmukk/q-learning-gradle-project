@@ -123,9 +123,6 @@ public class Environment implements Serializable {
         if (this.insideTemp > this.targetTemp) {
             return STOP_HEATING;
         } else {
-            if (this.outsideTemp > this.targetTemp) {
-                return STOP_HEATING;
-            }
             return HEAT;
         }
         /*if (this.isHeating) {
