@@ -26,7 +26,7 @@ public class QTable implements Serializable {
 
     private float episodeReward = 0;
 
-    private static final float EPS_DECAY = 0.99f;
+    private static final float EPS_DECAY = 0.995f;
     private static final float LEARNING_RATE = 0.1f;
     private static final float DISCOUNT = 0.95f;
     private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
