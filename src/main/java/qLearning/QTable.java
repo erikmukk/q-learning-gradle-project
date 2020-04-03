@@ -199,7 +199,6 @@ public class QTable implements Serializable {
 
     public void doWhenXTimeHasPassed(Environment environment, Model2D model2D) {
         float reward = 0;
-
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
@@ -253,18 +252,18 @@ public class QTable implements Serializable {
     }
 
     private static int findArgmax(float[] array) {
-        float max = -2000000000;
+        float max = -2000000000f;
         int index = 0;
         for (int i = 0 ; i < array.length ; i++) {
             if (array[i] > max) {
-                max = i;
+                max = array[i];
                 index = i;
             }
         } return index;
     }
 
     private static float findMax(float[] array) {
-        float max = -2000000000;
+        float max = -2000000000f;
         for (float i : array) {
             if (i > max) {
                 max = i;
