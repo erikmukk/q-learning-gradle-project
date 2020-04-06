@@ -6,6 +6,7 @@
 *.properties
 *.txt
 *.json
+testResults
 gradle-app.setting
 
 !gradle-wrapper.jar

@@ -26,11 +26,15 @@ public class QTable implements Serializable {
 
     private float episodeReward = 0;
 
-    private static final float EPS_DECAY = 0.99f;
-    private static final float LEARNING_RATE = 0.1f;
-    private static final float DISCOUNT = 0.95f;
+    //private float EPS_DECAY = 0.99f;
+    //private float LEARNING_RATE = 0.1f;
+    //private float DISCOUNT = 0.95f;
+    private float EPS_DECAY;
+    private float LEARNING_RATE ;
+    private float DISCOUNT;
     private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
-    private double epsilon = 0.9;
+    //private float epsilon = 0.9f;
+    private float epsilon;
     private int correct = 0;
     private int incorrect = 0;
     private int prevCorrect = 0;
@@ -47,8 +51,12 @@ public class QTable implements Serializable {
     Normalization tempNormalization;
     Normalization electricityPriceNormalization;
 
-    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
+    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice, float epsilon, float epsilonDecay, float learningRate, float discount) {
         initQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
+        this.epsilon = epsilon;
+        this.EPS_DECAY = epsilonDecay;
+        this.LEARNING_RATE = learningRate;
+        this.DISCOUNT = discount;
         this.tempNormalization = new Normalization(maxOutsideTemp, 0, 0f, 1f);
         this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
     }
