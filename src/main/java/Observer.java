@@ -173,7 +173,7 @@ public class Observer implements PropertyChangeListener {
             this.model2D.reset();
             setupEnvironment(targetTemp);
             int loops = this.qTable.getLoops();
-            if (loops % 1 == 0) {
+            if (loops % 1000 == 0) {
                 writeIntoFile(this.logger);
                 System.out.println("1000 iterations added!\t" + this.qTable.getLoops() + "loops completed");
                 System.exit(0);
