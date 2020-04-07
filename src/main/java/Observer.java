@@ -146,6 +146,7 @@ public class Observer implements PropertyChangeListener {
         infoMap.put("electricityFileName", electricityFileName);
         infoMap.put("tempFileName", tempFileName);
         infoMap.put("timeFileName", timeFileName);
+        infoMap.put("loopsCount", String.valueOf(this.loopsCount));
         try {
             File file = new File(targetFolder);
             file.mkdir();
