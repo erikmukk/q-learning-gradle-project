@@ -35,8 +35,9 @@ public class Observer implements PropertyChangeListener {
     public float epsilonDecay;
     public float learningRate;
     public float discount;
+    public int loopsCount;
 
-    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount) throws Exception {
+    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
@@ -44,6 +45,7 @@ public class Observer implements PropertyChangeListener {
         this.epsilonDecay = epsilonDecay;
         this.learningRate = learningRate;
         this.discount = discount;
+        this.loopsCount = loopsCount;
         init();
     }
 
@@ -173,9 +175,9 @@ public class Observer implements PropertyChangeListener {
             this.model2D.reset();
             setupEnvironment(targetTemp);
             int loops = this.qTable.getLoops();
-            if (loops % 1000 == 0) {
+            if (loops % this.loopsCount == 0) {
                 writeIntoFile(this.logger);
-                System.out.println("1000 iterations added!\t" + this.qTable.getLoops() + "loops completed");
+                System.out.println(this.loopsCount + " iterations added!\t" + this.qTable.getLoops() + "loops completed");
                 System.exit(0);
             }
             this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);

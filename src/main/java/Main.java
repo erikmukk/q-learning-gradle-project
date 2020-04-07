@@ -8,7 +8,8 @@ public class Main {
             float epsilonDecay = Float.parseFloat(args[2]);
             float learningRate = Float.parseFloat(args[3]);
             float discount = Float.parseFloat(args[4]);
-            new Observer(filename, epsilon, epsilonDecay, learningRate, discount);
+            int loopsCount = Integer.parseInt(args[5]);
+            new Observer(filename, epsilon, epsilonDecay, learningRate, discount, loopsCount);
         } else {
             System.out.println("Give me arguments. Exiting...");
         }
