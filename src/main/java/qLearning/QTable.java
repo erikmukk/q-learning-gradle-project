@@ -237,6 +237,7 @@ public class QTable implements Serializable {
         // TODO: Here I changed to normalization [0, 1] * 0.2
         if (this.calculatedAction == environment.HEAT) {
             reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
+            reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
         }
         // Make changes in environment
         environment.setInsideTemp(insideTemp);
