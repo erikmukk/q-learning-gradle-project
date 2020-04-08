@@ -47,16 +47,20 @@ public class QTable implements Serializable {
     public int calculatedAction;
     public String observationSpace;
     public String newObservationSpace;
+    public float temperatureRewardWeight;
+    public float electricityRewardWeight;
 
     Normalization tempNormalization;
     Normalization electricityPriceNormalization;
 
-    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice, float epsilon, float epsilonDecay, float learningRate, float discount) {
+    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice, float epsilon, float epsilonDecay, float learningRate, float discount, float temperatureRewardWeight, float electricityRewardWeight) {
         initQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
         this.epsilon = epsilon;
         this.EPS_DECAY = epsilonDecay;
         this.LEARNING_RATE = learningRate;
         this.DISCOUNT = discount;
+        this.temperatureRewardWeight = temperatureRewardWeight;
+        this.electricityRewardWeight = electricityRewardWeight;
         this.tempNormalization = new Normalization(maxOutsideTemp, 0, 0f, 1f);
         this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
     }
@@ -229,10 +233,10 @@ public class QTable implements Serializable {
             insideTemp = this.maxInsideTemp;
         }
         // TODO: Here I changed to normalization [0, 1]
-        reward += this.tempNormalization.normalize(Math.abs(targetTemp - insideTemp));
+        reward += this.tempNormalization.normalize(Math.abs(targetTemp - insideTemp)) * this.temperatureRewardWeight;
         // TODO: Here I changed to normalization [0, 1] * 0.2
         if (this.calculatedAction == environment.HEAT) {
-            reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * 0.2;
+            reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
         }
         // Make changes in environment
         environment.setInsideTemp(insideTemp);

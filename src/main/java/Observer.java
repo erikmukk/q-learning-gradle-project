@@ -36,8 +36,10 @@ public class Observer implements PropertyChangeListener {
     public float learningRate;
     public float discount;
     public int loopsCount;
+    public float temperatureRewardWeight;
+    public float electricityRewardWeight;
 
-    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount) throws Exception {
+    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
@@ -46,6 +48,8 @@ public class Observer implements PropertyChangeListener {
         this.learningRate = learningRate;
         this.discount = discount;
         this.loopsCount = loopsCount;
+        this.temperatureRewardWeight = temperatureRewardWeight;
+        this.electricityRewardWeight = electricityRewardWeight;
         init();
     }
 
@@ -56,7 +60,7 @@ public class Observer implements PropertyChangeListener {
     }
 
     private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
-        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice, this.epsilon, this.epsilonDecay, this.learningRate, this.discount);
+        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight);
     }
 
     private void setupQTable(String filename) throws Exception {
@@ -147,6 +151,8 @@ public class Observer implements PropertyChangeListener {
         infoMap.put("tempFileName", tempFileName);
         infoMap.put("timeFileName", timeFileName);
         infoMap.put("loopsCount", String.valueOf(this.loopsCount));
+        infoMap.put("temperatureRewardWeight", String.valueOf(this.temperatureRewardWeight));
+        infoMap.put("electricityRewardWeight", String.valueOf(this.electricityRewardWeight));
         try {
             File file = new File(targetFolder);
             file.mkdir();
