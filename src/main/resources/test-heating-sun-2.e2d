@@ -7,7 +7,7 @@
 <tasks>
 <task uid="MOVE_SUN" script="set sunny true;-linebreak-movesun;" description="Move the sun." interval="100"/>
 </tasks>
-<sunny>true</sunny><sun_angle>0</sun_angle>
+<sunny>true</sunny><sun_angle>0.0</sun_angle>
 <solar_power_density>15000.0</solar_power_density>
 <solar_ray_count>24</solar_ray_count>
 <solar_ray_speed>0.005</solar_ray_speed>
@@ -15,6 +15,7 @@
 <gravitational_acceleration>9.8</gravitational_acceleration>
 <thermophoretic_coefficient>0.0</thermophoretic_coefficient><particle_drag>0.01</particle_drag><particle_hardness>1.0E-6</particle_hardness><z_heat_diffusivity>1.0E-5</z_heat_diffusivity><z_heat_diffusivity_only_for_fluid>false</z_heat_diffusivity_only_for_fluid><convective>false</convective>
 <background_conductivity>1.0</background_conductivity>
+<background_temperature>15.0</background_temperature>
 <thermal_expansion_coefficient>2.5E-4</thermal_expansion_coefficient>
 <buoyancy_approximation>1</buoyancy_approximation>
 <boundary>
