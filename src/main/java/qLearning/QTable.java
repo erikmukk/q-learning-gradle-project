@@ -229,14 +229,19 @@ public class QTable implements Serializable {
         }
 
         // Calculate episode rewards
+        float rewardInsideTemp = insideTemp;
+        int terribleRewardMultiplier = 1;
         if (insideTemp > this.maxInsideTemp) {
             insideTemp = this.maxInsideTemp;
+            if (this.calculatedAction == environment.HEAT) {
+                terribleRewardMultiplier = -100;
+            }
         }
         // TODO: Here I changed to normalization [0, 1]
-        reward += this.tempNormalization.normalize(Math.abs(targetTemp - insideTemp)) * this.temperatureRewardWeight;
+        reward += this.tempNormalization.normalize(Math.abs(targetTemp - rewardInsideTemp)) * terribleRewardMultiplier * this.temperatureRewardWeight;
+        System.out.println(reward + "\t" + this.tempNormalization.normalize(Math.abs(targetTemp-rewardInsideTemp)) + "\t" + rewardInsideTemp + "\t" + environment.targetTemp);
         // TODO: Here I changed to normalization [0, 1] * 0.2
         if (this.calculatedAction == environment.HEAT) {
-            reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
             reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
         }
         // Make changes in environment
