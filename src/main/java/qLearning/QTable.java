@@ -191,8 +191,9 @@ public class QTable implements Serializable {
         }
         float envInsideTemp = environment.getInsideTemp();
         float envOutsideTemp = environment.getOutsideTemp();
-        String qTableKey = calculateQTableKey(insideTemp, outsideTemp);
-
+        //String qTableKey = calculateQTableKey(insideTemp, outsideTemp);
+        //TODO: Try this
+        String qTableKey = calculateQTableKey(envInsideTemp, envOutsideTemp);
         // Get actions
         float[] _actions = this.qTable.get(qTableKey);
         if (_actions == null) {
@@ -318,5 +319,9 @@ public class QTable implements Serializable {
 
     public int getIterationLoops() {
         return iterationLoops;
+    }
+
+    public void setqTable(HashMap<String, float[]> qTable) {
+        this.qTable = qTable;
     }
 }
