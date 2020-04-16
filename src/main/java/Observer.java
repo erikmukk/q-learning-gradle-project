@@ -92,7 +92,7 @@ public class Observer implements PropertyChangeListener {
         setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
 
         System.out.println("QTable initialized");
-        this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
+        this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         this.model2D.run();
     }
 
@@ -151,7 +151,8 @@ public class Observer implements PropertyChangeListener {
         float time = this.model2D.getTime();
         if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
-            this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
+            // Take new action before running x time
+            this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         }
         if (time >= 86400) {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
@@ -164,7 +165,8 @@ public class Observer implements PropertyChangeListener {
                 System.out.println(this.loopsCount + " iterations added!\t" + this.qTable.getLoops() + "loops completed");
                 System.exit(0);
             }
-            this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
+            // Take new action before running x time
+            this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         }
         this.model2D.resume();
     }
