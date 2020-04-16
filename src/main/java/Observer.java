@@ -1,8 +1,6 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import logger.Logger;
-import math.Helpers;
 import org.concord.energy2d.model.Model2D;
-import org.concord.energy2d.model.Thermometer;
 import org.concord.energy2d.system.XmlDecoderHeadlessForModelExport;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -27,8 +25,6 @@ public class Observer implements PropertyChangeListener {
     public Logger logger;
     public Model2D model2D;
     public float targetTemp;
-    public String logfileName;
-    public String envfileName;
     public int loopLengthMins = 10;
     public String filenameBase;
     public float epsilon;
@@ -63,34 +59,12 @@ public class Observer implements PropertyChangeListener {
         this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight);
     }
 
-    private void setupQTable(String filename) throws Exception {
-        FileInputStream fi = new FileInputStream(new File(filename));
-        ObjectInputStream oi = new ObjectInputStream(fi);
-        Logger log = (Logger) oi.readObject();
-        this.qTable = log.getLoggedQTable();
-    }
-
     private void setupEnvironment(float targetTemp) {
-        Thermometer insideThermometer = this.model2D.getThermometer("inside");
-        Thermometer outsideThermometer = this.model2D.getThermometer("outside");
-        float insideTemp;
-        float outsideTemp;
-        try {
-            insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
-        } catch (Exception e) {
-            insideTemp = 0.0f;
-        }
-        try {
-            outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
-        } catch (Exception e) {
-            outsideTemp = 0.0f;
-        }
-        this.environment = new Environment(outsideTemp, insideTemp, targetTemp, this.loopLengthMins);
+        float bgTemp = model2D.getBackgroundTemperature();
+        this.environment = new Environment(bgTemp, bgTemp, targetTemp, this.loopLengthMins);
     }
 
     public void init() throws Exception {
-        this.logfileName = "logfile.properties";
-        //this.envfileName = "logfile-03-04-2020-6.properties";
         this.logger = new Logger();
         float minOutsideTemp = -30f;
         float maxOutsideTemp = 40f;
@@ -135,6 +109,7 @@ public class Observer implements PropertyChangeListener {
     private void writeIntoFile(Logger logger) {
         ObjectMapper mapper = new ObjectMapper();
         QTable table = logger.getLoggedQTable();
+        HashMap<String, float[]> qTableTable = table.getqTable();
         Map<Integer, Float> rewards = table.getAllEpisodeRewards();
         HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
         HashMap<Integer, HashMap<Integer, List<Float>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
@@ -145,6 +120,7 @@ public class Observer implements PropertyChangeListener {
         String tempFileName = "tempAverages.json";
         String timeFileName = "totalTimeHeating.json";
         String infoFileName = "info.json";
+        String tableFileName = "qTable.json";
         String targetFolder = "testResults/" + this.filenameBase;
         infoMap.put("rewardFileName", rewardFileName);
         infoMap.put("electricityFileName", electricityFileName);
@@ -161,6 +137,7 @@ public class Observer implements PropertyChangeListener {
             mapper.writeValue(new File(targetFolder + "/"  + tempFileName), tempAveragesPerLoopPerHr);
             mapper.writeValue(new File(targetFolder + "/"  + timeFileName), totalTimeHeatingPerLoop);
             mapper.writeValue(new File(targetFolder + "/"  + infoFileName), infoMap);
+            mapper.writeValue(new File(targetFolder + "/" + tableFileName), qTableTable);
             FileOutputStream f = new FileOutputStream(new File(targetFolder + "/"  + this.filenameBase + ".properties"));
             ObjectOutputStream o = new ObjectOutputStream(f);
             o.writeObject(logger);
@@ -188,20 +165,6 @@ public class Observer implements PropertyChangeListener {
                 System.exit(0);
             }
             this.qTable.doStepBeforeRunningOneMinute(this.environment, this.model2D);
-        }
-        this.model2D.resume();
-    }
-    public void calculateValuesForTest(float targetTemp) {
-        float time = this.model2D.getTime();
-        if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
-            this.qTable.doWhenXTimeHasPassedForOneIterationTest(this.environment, this.model2D);
-        }
-        if (time >= 86400) {
-            this.qTable.doWhenXTimeHasPassedForOneIterationTest(this.environment, this.model2D);
-            this.qTable.endTestIteration(this.logger, this.environment);
-            writeIntoFile(this.logger);
-            System.out.println("Testing finished");
-            System.exit(0);
         }
         this.model2D.resume();
     }
