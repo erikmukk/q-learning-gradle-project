@@ -74,15 +74,11 @@ public class QTable implements Serializable {
         this.minOutsideTemp = minOutsideTemp;
         this.maxOutsideTemp = maxOutsideTemp;
         this.qTable = new HashMap<>();
-        float[] arr = new float[actionsLength];
-        for (int k = 0 ; k < actionsLength ; k++) {
-            arr[k] = 0f;
-        }
         for (int i=(int)minInsideTemp; i <= maxInsideTemp ; i+=1) {
             for (int j=(int)minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=1) {
                 //String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
                 String key = this.makeQTableKey(i, j);
-                this.qTable.put(key, arr);
+                this.qTable.put(key, new float[2]);
             }
         }
         String[] specialKeys = new String[4];
@@ -91,7 +87,7 @@ public class QTable implements Serializable {
         specialKeys[2] = this.aboveMaxInsideTempKey;
         specialKeys[3] = this.aboveMaxOutsideTempKey;
         for (String key : specialKeys) {
-            this.qTable.put(key, arr);
+            this.qTable.put(key, new float[2]);
         }
     }
 
