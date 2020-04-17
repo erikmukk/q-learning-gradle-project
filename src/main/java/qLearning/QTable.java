@@ -78,9 +78,10 @@ public class QTable implements Serializable {
         for (int k = 0 ; k < actionsLength ; k++) {
             arr[k] = 0f;
         }
-        for (float i=minInsideTemp; i <= maxInsideTemp ; i+=0.1f) {
-            for (float j=minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=0.1f) {
-                String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
+        for (int i=(int)minInsideTemp; i <= maxInsideTemp ; i+=1) {
+            for (int j=(int)minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=1) {
+                //String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
+                String key = this.makeQTableKey(i, j);
                 this.qTable.put(key, arr);
             }
         }
@@ -98,7 +99,19 @@ public class QTable implements Serializable {
         return insideTemp + "_" + outsideTemp;
     }
 
+    public String makeQTableKey(int insideTemp, int outsideTemp) {
+        return insideTemp + "_" + outsideTemp;
+    }
+
     public String calculateQTableKey (float insideTemp, float outsideTemp) {
+        if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
+        if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
+        if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
+        if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
+        return makeQTableKey(insideTemp, outsideTemp);
+    }
+
+    public String calculateQTableKey (int insideTemp, int outsideTemp) {
         if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
         if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
         if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
@@ -139,16 +152,18 @@ public class QTable implements Serializable {
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
-        float bgTemp = model2D.getBackgroundTemperature();
-        float insideTemp;
-        float outsideTemp;
+        int bgTemp = Math.round(model2D.getBackgroundTemperature());
+        int insideTemp;
+        int outsideTemp;
         try {
-            insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
+            //insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
+            insideTemp = Math.round(insideThermometer.getCurrentData());
         } catch (Exception e) {
             insideTemp = bgTemp;
         }
         try {
-            outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
+            //outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
+            outsideTemp = Math.round(outsideThermometer.getCurrentData());
         } catch (Exception e) {
             outsideTemp = bgTemp;
         }
@@ -179,17 +194,19 @@ public class QTable implements Serializable {
         float reward = 0;
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
-        float targetTemp = environment.targetTemp;
-        float bgTemp = model2D.getBackgroundTemperature();
-        float insideTemp;
-        float outsideTemp;
+        int targetTemp = Math.round(environment.targetTemp);
+        int bgTemp = Math.round(model2D.getBackgroundTemperature());
+        int insideTemp;
+        int outsideTemp;
         try {
-            insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
+            //insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
+            insideTemp = Math.round(insideThermometer.getCurrentData());
         } catch (Exception e) {
             insideTemp = bgTemp;
         }
         try {
-            outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
+            //outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
+            outsideTemp = Math.round(outsideThermometer.getCurrentData());
         } catch (Exception e) {
             outsideTemp = bgTemp;
         }

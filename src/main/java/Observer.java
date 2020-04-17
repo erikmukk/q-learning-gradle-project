@@ -66,7 +66,7 @@ public class Observer implements PropertyChangeListener {
 
     public void init() throws Exception {
         this.logger = new Logger();
-        float minOutsideTemp = -30f;
+        float minOutsideTemp = 0f;
         float maxOutsideTemp = 40f;
         float minInsideTemp = 0f;
         float maxInsideTemp = 40f;
