@@ -224,7 +224,7 @@ public class QTable implements Serializable {
         float[] currentQValArray = this.qTable.get(this.observationSpace);
         float currentQVal = currentQValArray[this.calculatedAction];
 
-        float newQVal = currentQVal + LEARNING_RATE * (reward + DISCOUNT * maxFutureQVal - currentQVal);
+        float newQVal = (1 - LEARNING_RATE) * currentQVal + LEARNING_RATE * (reward + DISCOUNT * maxFutureQVal);
         currentQValArray[this.calculatedAction] = newQVal;
         this.qTable.put(this.observationSpace, currentQValArray);
         this.observationSpace = this.newObservationSpace;
