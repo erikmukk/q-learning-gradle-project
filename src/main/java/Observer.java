@@ -40,24 +40,12 @@ public class Observer implements PropertyChangeListener {
 
     private void setupModel2D() {
         this.model2D.setTimeStep(10f);
-        this.model2D.getThermostats().get(0).setDeadband(200f);
-        this.model2D.getThermostats().get(0).setSetPoint(200f);
+        this.model2D.getThermostats().get(0).setDeadband(1f);
+        this.model2D.getThermostats().get(0).setSetPoint(20f);
     }
 
-    private void readQTable() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            HashMap<String, float[]> table = mapper.readValue(new File("src/main/resources/qTable.json"), new TypeReference<HashMap<String, float[]>>() {
-            });
-            this.qTable.setqTable(table);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
-        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice);
-        readQTable();
+    private void setupQTable() {
+        this.qTable = new QTable();
     }
 
     private void setupEnvironment(float targetTemp) {
@@ -67,10 +55,6 @@ public class Observer implements PropertyChangeListener {
 
     public void init() throws Exception {
         this.logger = new Logger();
-        float minOutsideTemp = 0f;
-        float maxOutsideTemp = 40f;
-        float minInsideTemp = 0f;
-        float maxInsideTemp = 40f;
         this.targetTemp = 20f;
         InputStream is = new FileInputStream("src/main/resources/test-heating-sun-2.e2d");
         DefaultHandler saxHandler = new XmlDecoderHeadlessForModelExport(this.model2D);
@@ -90,9 +74,9 @@ public class Observer implements PropertyChangeListener {
                 maxElectricityValue = entry.getValue();
             }
         }
-        setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
-
-        System.out.println("QTable initialized");
+        setupQTable();
+        System.out.println("QTable loaded");
+        this.model2D.takeMeasurement();
         this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         this.model2D.run();
     }

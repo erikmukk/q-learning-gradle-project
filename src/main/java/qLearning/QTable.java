@@ -16,59 +16,9 @@ import java.util.Random;
 public class QTable implements Serializable {
 
     HashMap<String, float[]> qTable;
-    public String belowMinInsideTempKey = "-_";
-    public String aboveMaxInsideTempKey = "+_";
-    public String belowMinOutsideTempKey = "_-";
-    public String aboveMaxOutsideTempKey = "_+";
-    private float minInsideTemp;
-    private float maxInsideTemp;
-    private float minOutsideTemp;
-    private float maxOutsideTemp;
-
-
-    private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
     public int loops = 0;
-    // New thing
-    public int calculatedAction;
-    public String observationSpace;
-    public Random randomGen;
 
-    Normalization tempNormalization;
-    Normalization electricityPriceNormalization;
-
-    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
-        this.maxInsideTemp = maxInsideTemp;
-        this.maxOutsideTemp = maxOutsideTemp;
-        this.minInsideTemp = minInsideTemp;
-        this.minOutsideTemp = minOutsideTemp;
-        this.randomGen = new Random(10);
-
-        this.tempNormalization = new Normalization(maxOutsideTemp, 0, 0f, 1f);
-        this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
-    }
-
-    public String makeQTableKey(float insideTemp, float outsideTemp) {
-        return insideTemp + "_" + outsideTemp;
-    }
-
-    public String makeQTableKey(int insideTemp, int outsideTemp) {
-        return insideTemp + "_" + outsideTemp;
-    }
-
-    public String calculateQTableKey (float insideTemp, float outsideTemp) {
-        if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
-        if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
-        if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
-        if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp);
-    }
-
-    public String calculateQTableKey (int insideTemp, int outsideTemp) {
-        if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
-        if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
-        if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
-        if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp);
+    public QTable() {
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
@@ -76,19 +26,6 @@ public class QTable implements Serializable {
         logger.addToTotalTimeHeatingPerLoop(this.loops, environment.getTotalTimeHeating());
         logger.addToElectricityUsedPerLoopPerHr(this.loops, environment.getHeatingTimeAndPriceMap());
         logger.addToTemperatureAveragesPerLoopPerHr(this.loops, environment.getHeatingPeriodAndAvgTempMap());
-    }
-
-    private double electricityPriceReward(float time, int action, Environment env) {
-        int timeHr = (int) (time / 3600);
-        if (timeHr > 23) {
-            timeHr = 23;
-        }
-        HashMap<Integer, Float> prices = env.getElectricityStockPrice();
-        float electricityPrice = prices.get(timeHr);
-        if (action == env.HEAT) {
-            return electricityPrice;
-        }
-        return 0;
     }
 
     public void doStepBeforeRunningXMinutes(Environment environment, Model2D model2D) {
@@ -110,43 +47,16 @@ public class QTable implements Serializable {
         } catch (Exception e) {
             outsideTemp = bgTemp;
         }
-        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp);
-        // Get actions
-        float[] _actions = this.qTable.get(this.observationSpace);
-        if (_actions == null) {
-            _actions = this.qTable.get(aboveMaxInsideTempKey);
-        }
-        // Find action according to qTable or randomly
-        this.calculatedAction = findArgmax(_actions);
         environment.setInsideTemp(insideTemp);
         environment.setOutsideTemp(outsideTemp);
 
         // Set model2D heat source to on/off
-        if (this.calculatedAction == environment.HEAT) {
-            insideThermostat.getPowerSource().setPowerSwitch(true);
-        } else if (this.calculatedAction == environment.STOP_HEATING) {
-            insideThermostat.getPowerSource().setPowerSwitch(false);
+        if (insideThermostat.getPowerSource().getPowerSwitch()) {
+            environment.takeAction(environment.HEAT, model2D.getTime());
+        } else {
+            environment.takeAction(environment.STOP_HEATING, model2D.getTime());
         }
-        environment.takeAction(this.calculatedAction, model2D.getTime());
-    }
-
-    private static int findArgmax(float[] array) {
-        float max = -2000000000f;
-        int index = 0;
-        for (int i = 0 ; i < array.length ; i++) {
-            if (array[i] > max) {
-                max = array[i];
-                index = i;
-            }
-        } return index;
-    }
-
-    public HashMap<String, float[]> getqTable() {
-        return qTable;
-    }
-
-    public Map<Integer, Float> getAllEpisodeRewards() {
-        return allEpisodeRewards;
+        System.out.println(insideTemp);
     }
 
     public void setqTable(HashMap<String, float[]> qTable) {
