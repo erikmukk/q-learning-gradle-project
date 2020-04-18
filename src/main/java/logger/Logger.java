@@ -8,7 +8,6 @@ import java.util.List;
 
 public class Logger implements Serializable {
 
-    QTable loggedQTable;
     // Map<Episode#, TimeHeating>
     HashMap<Integer, Integer> totalTimeHeatingPerLoop;
     HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr;
@@ -18,10 +17,6 @@ public class Logger implements Serializable {
         this.totalTimeHeatingPerLoop = new HashMap<>();
         this.electricityUsedPerLoopPerHr = new HashMap<>();
         this.temperatureAveragesPerLoopPerHr = new HashMap<>();
-    }
-
-    public void addLoggedQTable(QTable table) {
-        this.loggedQTable = table;
     }
 
     public void addToTotalTimeHeatingPerLoop(int loopNr, int time) {
@@ -34,10 +29,6 @@ public class Logger implements Serializable {
 
     public void addToTemperatureAveragesPerLoopPerHr(int loopNr, HashMap<Integer, List<Float>> map) {
         this.temperatureAveragesPerLoopPerHr.put(loopNr, map);
-    }
-
-    public QTable getLoggedQTable() {
-        return loggedQTable;
     }
 
     public HashMap<Integer, Integer> getTotalTimeHeatingPerLoop() {

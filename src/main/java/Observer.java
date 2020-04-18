@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import logger.Logger;
 import org.concord.energy2d.model.Model2D;
@@ -27,25 +28,13 @@ public class Observer implements PropertyChangeListener {
     public float targetTemp;
     public int loopLengthMins = 10;
     public String filenameBase;
-    public float epsilon;
-    public float epsilonDecay;
-    public float learningRate;
-    public float discount;
-    public int loopsCount;
-    public float temperatureRewardWeight;
-    public float electricityRewardWeight;
+    public String qTableFilename;
 
-    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight) throws Exception {
+    public Observer(String filenameBase, String qTableFilename) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
-        this.epsilon = epsilon;
-        this.epsilonDecay = epsilonDecay;
-        this.learningRate = learningRate;
-        this.discount = discount;
-        this.loopsCount = loopsCount;
-        this.temperatureRewardWeight = temperatureRewardWeight;
-        this.electricityRewardWeight = electricityRewardWeight;
+        this.qTableFilename = qTableFilename;
         init();
     }
 
@@ -55,8 +44,20 @@ public class Observer implements PropertyChangeListener {
         this.model2D.getThermostats().get(0).setSetPoint(200f);
     }
 
+    private void readQTable() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            HashMap<String, float[]> table = mapper.readValue(new File("src/main/resources/qTable.json"), new TypeReference<HashMap<String, float[]>>() {
+            });
+            this.qTable.setqTable(table);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
-        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight);
+        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice);
+        readQTable();
     }
 
     private void setupEnvironment(float targetTemp) {
@@ -99,49 +100,30 @@ public class Observer implements PropertyChangeListener {
     private HashMap<String, String> makeInfoMap() {
         HashMap<String, String> map = new HashMap<>();
         map.put("filenameBase", this.filenameBase);
-        map.put("epsilon", String.valueOf(this.epsilon));
-        map.put("epsilonDecay", String.valueOf(this.epsilonDecay));
-        map.put("learningRate", String.valueOf(this.learningRate));
-        map.put("discount", String.valueOf(this.discount));
         return map;
     }
 
     private void writeIntoFile(Logger logger) {
         ObjectMapper mapper = new ObjectMapper();
-        QTable table = logger.getLoggedQTable();
-        HashMap<String, float[]> qTableTable = table.getqTable();
-        Map<Integer, Float> rewards = table.getAllEpisodeRewards();
         HashMap<Integer, HashMap<Integer, Integer>> electricityUsedPerLoopPerHr = logger.getElectricityUsedPerLoopPerHr();
         HashMap<Integer, HashMap<Integer, List<Float>>> tempAveragesPerLoopPerHr = logger.getTemperatureAveragesPerLoopPerHr();
         HashMap<Integer, Integer> totalTimeHeatingPerLoop = logger.getTotalTimeHeatingPerLoop();
         Map<String, String> infoMap = makeInfoMap();
-        String rewardFileName = "rewards.json";
         String electricityFileName = "electricityUsed.json";
         String tempFileName = "tempAverages.json";
         String timeFileName = "totalTimeHeating.json";
         String infoFileName = "info.json";
-        String tableFileName = "qTable.json";
         String targetFolder = "testResults/" + this.filenameBase;
-        infoMap.put("rewardFileName", rewardFileName);
         infoMap.put("electricityFileName", electricityFileName);
         infoMap.put("tempFileName", tempFileName);
         infoMap.put("timeFileName", timeFileName);
-        infoMap.put("loopsCount", String.valueOf(this.loopsCount));
-        infoMap.put("temperatureRewardWeight", String.valueOf(this.temperatureRewardWeight));
-        infoMap.put("electricityRewardWeight", String.valueOf(this.electricityRewardWeight));
         try {
             File file = new File(targetFolder);
             file.mkdir();
-            mapper.writeValue(new File(targetFolder + "/" + rewardFileName), rewards);
             mapper.writeValue(new File(targetFolder + "/"  + electricityFileName), electricityUsedPerLoopPerHr);
             mapper.writeValue(new File(targetFolder + "/"  + tempFileName), tempAveragesPerLoopPerHr);
             mapper.writeValue(new File(targetFolder + "/"  + timeFileName), totalTimeHeatingPerLoop);
             mapper.writeValue(new File(targetFolder + "/"  + infoFileName), infoMap);
-            mapper.writeValue(new File(targetFolder + "/" + tableFileName), qTableTable);
-            FileOutputStream f = new FileOutputStream(new File(targetFolder + "/"  + this.filenameBase + ".properties"));
-            ObjectOutputStream o = new ObjectOutputStream(f);
-            o.writeObject(logger);
-            o.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,23 +133,15 @@ public class Observer implements PropertyChangeListener {
         float time = this.model2D.getTime();
         this.model2D.takeMeasurement();
         if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
-            this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
             // Take new action before running x time
             this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         }
         if (time >= 86400) {
-            this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
             this.qTable.startNewIteration(this.logger, this.environment);
-            this.model2D.reset();
             setupEnvironment(targetTemp);
-            int loops = this.qTable.getLoops();
-            if (loops % this.loopsCount == 0) {
-                writeIntoFile(this.logger);
-                System.out.println(this.loopsCount + " iterations added!\t" + this.qTable.getLoops() + "loops completed");
-                System.exit(0);
-            }
-            // Take new action before running x time
-            this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
+            writeIntoFile(this.logger);
+            System.out.println("END");
+            System.exit(0);
         }
         this.model2D.resume();
     }
@@ -178,7 +152,6 @@ public class Observer implements PropertyChangeListener {
         this.model2D.stop();
         try {
             calculateValues(this.targetTemp);
-            //calculateValuesForTest(this.targetTemp);
         } catch (Exception e) {
             e.printStackTrace();
         }

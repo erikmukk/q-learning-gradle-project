@@ -25,70 +25,26 @@ public class QTable implements Serializable {
     private float minOutsideTemp;
     private float maxOutsideTemp;
 
-    private float episodeReward = 0;
 
-    //private float EPS_DECAY = 0.99f;
-    //private float LEARNING_RATE = 0.1f;
-    //private float DISCOUNT = 0.95f;
-    private float EPS_DECAY;
-    private float LEARNING_RATE ;
-    private float DISCOUNT;
     private final Map<Integer, Float> allEpisodeRewards = new HashMap<>();
-    //private float epsilon = 0.9f;
-    private float epsilon;
-    private int correct = 0;
-    private int incorrect = 0;
-    private int prevCorrect = 0;
-    private int prevIncorrect = 0;
     public int loops = 0;
-    public int iterationLoops = 0;
     // New thing
-    public String previousQKey;
-    public int wantedAction;
     public int calculatedAction;
     public String observationSpace;
-    public String newObservationSpace;
-    public float temperatureRewardWeight;
-    public float electricityRewardWeight;
     public Random randomGen;
 
     Normalization tempNormalization;
     Normalization electricityPriceNormalization;
 
-    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice, float epsilon, float epsilonDecay, float learningRate, float discount, float temperatureRewardWeight, float electricityRewardWeight) {
-        initQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength);
+    public QTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
+        this.maxInsideTemp = maxInsideTemp;
+        this.maxOutsideTemp = maxOutsideTemp;
+        this.minInsideTemp = minInsideTemp;
+        this.minOutsideTemp = minOutsideTemp;
         this.randomGen = new Random(10);
-        this.epsilon = epsilon;
-        this.EPS_DECAY = epsilonDecay;
-        this.LEARNING_RATE = learningRate;
-        this.DISCOUNT = discount;
-        this.temperatureRewardWeight = temperatureRewardWeight;
-        this.electricityRewardWeight = electricityRewardWeight;
+
         this.tempNormalization = new Normalization(maxOutsideTemp, 0, 0f, 1f);
         this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
-    }
-
-    private void initQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength) {
-        this.minInsideTemp = minInsideTemp;
-        this.maxInsideTemp = maxInsideTemp;
-        this.minOutsideTemp = minOutsideTemp;
-        this.maxOutsideTemp = maxOutsideTemp;
-        this.qTable = new HashMap<>();
-        for (int i=(int)minInsideTemp; i <= maxInsideTemp ; i+=1) {
-            for (int j=(int)minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=1) {
-                //String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
-                String key = this.makeQTableKey(i, j);
-                this.qTable.put(key, new float[2]);
-            }
-        }
-        String[] specialKeys = new String[4];
-        specialKeys[0] = this.belowMinInsideTempKey;
-        specialKeys[1] = this.belowMinOutsideTempKey;
-        specialKeys[2] = this.aboveMaxInsideTempKey;
-        specialKeys[3] = this.aboveMaxOutsideTempKey;
-        for (String key : specialKeys) {
-            this.qTable.put(key, new float[2]);
-        }
     }
 
     public String makeQTableKey(float insideTemp, float outsideTemp) {
@@ -116,19 +72,10 @@ public class QTable implements Serializable {
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
-        this.epsilon = this.epsilon * EPS_DECAY;
         this.loops += 1;
-        this.allEpisodeRewards.put(this.loops, this.episodeReward);
         logger.addToTotalTimeHeatingPerLoop(this.loops, environment.getTotalTimeHeating());
         logger.addToElectricityUsedPerLoopPerHr(this.loops, environment.getHeatingTimeAndPriceMap());
         logger.addToTemperatureAveragesPerLoopPerHr(this.loops, environment.getHeatingPeriodAndAvgTempMap());
-        logger.addLoggedQTable(this);
-        this.iterationLoops = 0;
-        this.episodeReward = 0;
-        System.out.println("correct: " + this.correct + "\tincorrect: " + this.incorrect + "\tloops: " + this.loops
-                + "\tprevCorrect: " + this.prevCorrect+ "\tprevIncorrect: " + this.prevIncorrect);
-        this.prevCorrect = 0;
-        this.prevIncorrect = 0;
     }
 
     private double electricityPriceReward(float time, int action, Environment env) {
@@ -170,76 +117,17 @@ public class QTable implements Serializable {
             _actions = this.qTable.get(aboveMaxInsideTempKey);
         }
         // Find action according to qTable or randomly
-        if (this.randomGen.nextFloat() > epsilon) {
-            this.calculatedAction = findArgmax(_actions);
-        } else {
-            this.calculatedAction = (int)(this.randomGen.nextFloat() * (environment.getActionSpace().length));
-        }
+        this.calculatedAction = findArgmax(_actions);
+        environment.setInsideTemp(insideTemp);
+        environment.setOutsideTemp(outsideTemp);
+
         // Set model2D heat source to on/off
         if (this.calculatedAction == environment.HEAT) {
             insideThermostat.getPowerSource().setPowerSwitch(true);
         } else if (this.calculatedAction == environment.STOP_HEATING) {
             insideThermostat.getPowerSource().setPowerSwitch(false);
         }
-        // Take action and set wantedAction for logging purposes
-        this.wantedAction = environment.getCorrectAction();
         environment.takeAction(this.calculatedAction, model2D.getTime());
-    }
-
-    public void doWhenXTimeHasPassed(Environment environment, Model2D model2D) {
-        float reward = 0;
-        Thermometer insideThermometer = model2D.getThermometer("inside");
-        Thermometer outsideThermometer = model2D.getThermometer("outside");
-        int targetTemp = Math.round(environment.targetTemp);
-        int bgTemp = Math.round(model2D.getBackgroundTemperature());
-        int insideTemp;
-        int outsideTemp;
-        try {
-            //insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
-            insideTemp = Math.round(insideThermometer.getCurrentData());
-        } catch (Exception e) {
-            insideTemp = bgTemp;
-        }
-        try {
-            //outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
-            outsideTemp = Math.round(outsideThermometer.getCurrentData());
-        } catch (Exception e) {
-            outsideTemp = bgTemp;
-        }
-
-        // Calculate episode reward
-        reward += Math.abs(insideTemp-targetTemp) * -1;
-        // Here I changed to normalization [0, 1]
-        // reward += Math.pow(this.tempNormalization.normalize(Math.abs(targetTemp - rewardInsideTemp)) * this.temperatureRewardWeight, 4);
-        // Ignore for now. Not using electricity reward atm.
-        if (this.calculatedAction == environment.HEAT) {
-            //reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
-        }
-        // Make changes in environment
-        environment.setInsideTemp(insideTemp);
-        environment.setOutsideTemp(outsideTemp);
-
-        this.newObservationSpace = calculateQTableKey(insideTemp, outsideTemp);
-        float maxFutureQVal = findMax(this.qTable.get(this.newObservationSpace));
-        float[] currentQValArray = this.qTable.get(this.observationSpace);
-        float currentQVal = currentQValArray[this.calculatedAction];
-
-        float newQVal = currentQVal + LEARNING_RATE * (reward + DISCOUNT * maxFutureQVal - currentQVal);
-        currentQValArray[this.calculatedAction] = newQVal;
-        this.qTable.put(this.observationSpace, currentQValArray);
-        this.observationSpace = this.newObservationSpace;
-
-        // For logging. Has nothing to do with qlearning itself
-        if (this.wantedAction == this.calculatedAction) {
-            this.prevCorrect += 1;
-            this.correct += 1;
-        } else {
-            this.prevIncorrect += 1;
-            this.incorrect += 1;
-        }
-        this.episodeReward += reward;
-        this.iterationLoops += 1;
-        ////////////////////////////////////////////////////////
     }
 
     private static int findArgmax(float[] array) {
@@ -253,45 +141,12 @@ public class QTable implements Serializable {
         } return index;
     }
 
-    private static float findMax(float[] array) {
-        float max = -2000000000f;
-        for (float i : array) {
-            if (i > max) {
-                max = i;
-            }
-        } return max;
-    }
-
     public HashMap<String, float[]> getqTable() {
         return qTable;
     }
 
-    public String getBelowMinInsideTempKey() {
-        return belowMinInsideTempKey;
-    }
-
-    public String getAboveMaxInsideTempKey() {
-        return aboveMaxInsideTempKey;
-    }
-
-    public String getBelowMinOutsideTempKey() {
-        return belowMinOutsideTempKey;
-    }
-
-    public String getAboveMaxOutsideTempKey() {
-        return aboveMaxOutsideTempKey;
-    }
-
-    public int getLoops() {
-        return loops;
-    }
-
     public Map<Integer, Float> getAllEpisodeRewards() {
         return allEpisodeRewards;
-    }
-
-    public int getIterationLoops() {
-        return iterationLoops;
     }
 
     public void setqTable(HashMap<String, float[]> qTable) {

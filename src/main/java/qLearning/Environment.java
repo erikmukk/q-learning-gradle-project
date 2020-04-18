@@ -119,39 +119,6 @@ public class Environment implements Serializable {
         return actionSpace;
     }
 
-    public int getCorrectAction() {
-        if (this.insideTemp > this.targetTemp) {
-            return STOP_HEATING;
-        } else {
-            return HEAT;
-        }
-        /*if (this.isHeating) {
-            if (this.outsideTemp > this.insideTemp) {
-                if (this.outsideTemp > this.targetTemp) {
-                    return STOP_HEATING;
-                }
-            } else {
-                if (this.insideTemp >= this.targetTemp) {
-                    return STOP_HEATING;
-                }
-            }
-            return DO_NOTHING;
-        } else {
-            if (this.outsideTemp > this.insideTemp) {
-                if (this.outsideTemp >= this.targetTemp) {
-                    return DO_NOTHING;
-                } else if (this.insideTemp >= this.targetTemp) {
-                    return DO_NOTHING;
-                }
-            } else {
-                if (this.insideTemp >= this.targetTemp) {
-                    return DO_NOTHING;
-                }
-            }
-            return HEAT;
-        }*/
-    }
-
     public float getInsideTemp() {
         return insideTemp;
     }
