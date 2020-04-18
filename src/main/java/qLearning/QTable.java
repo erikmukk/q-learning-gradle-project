@@ -208,7 +208,7 @@ public class QTable implements Serializable {
         }
 
         // Calculate episode reward
-        reward += (insideTemp-targetTemp) * -1;
+        reward += Math.abs(insideTemp-targetTemp) * -1;
         // Here I changed to normalization [0, 1]
         // reward += Math.pow(this.tempNormalization.normalize(Math.abs(targetTemp - rewardInsideTemp)) * this.temperatureRewardWeight, 4);
         // Ignore for now. Not using electricity reward atm.
@@ -224,7 +224,7 @@ public class QTable implements Serializable {
         float[] currentQValArray = this.qTable.get(this.observationSpace);
         float currentQVal = currentQValArray[this.calculatedAction];
 
-        float newQVal = (1 - LEARNING_RATE) * currentQVal + LEARNING_RATE * (reward + DISCOUNT * maxFutureQVal);
+        float newQVal = currentQVal + LEARNING_RATE * (reward + DISCOUNT * maxFutureQVal - currentQVal);
         currentQValArray[this.calculatedAction] = newQVal;
         this.qTable.put(this.observationSpace, currentQValArray);
         this.observationSpace = this.newObservationSpace;
