@@ -25,7 +25,7 @@ public class Observer implements PropertyChangeListener {
     public Logger logger;
     public Model2D model2D;
     public float targetTemp;
-    public int loopLengthMins = 10;
+    public int loopLengthMins = 1;
     public String filenameBase;
     public float epsilon;
     public float epsilonDecay;
