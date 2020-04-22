@@ -208,13 +208,16 @@ public class QTable implements Serializable {
         }
 
         // Calculate episode reward
-        reward += Math.abs(insideTemp-targetTemp) * -1;
+        float tempReward = this.tempNormalization.normalize(Math.abs(targetTemp - insideTemp)) * this.temperatureRewardWeight;
+        reward += tempReward;
         // Here I changed to normalization [0, 1]
         // reward += Math.pow(this.tempNormalization.normalize(Math.abs(targetTemp - rewardInsideTemp)) * this.temperatureRewardWeight, 4);
         // Ignore for now. Not using electricity reward atm.
         if (this.calculatedAction == environment.HEAT) {
-            //reward += this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
+            double electricityReward = this.electricityPriceNormalization.normalize(electricityPriceReward(model2D.getTime(), calculatedAction, environment)) * this.electricityRewardWeight;
+            reward += electricityReward;
         }
+
         // Make changes in environment
         environment.setInsideTemp(insideTemp);
         environment.setOutsideTemp(outsideTemp);
