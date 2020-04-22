@@ -26,9 +26,10 @@ public class Observer implements PropertyChangeListener {
     public Logger logger;
     public Model2D model2D;
     public float targetTemp;
-    public int loopLengthMins = 10;
+    public int loopLengthMins = 1;
     public String filenameBase;
     public String qTableFilename;
+    public float deadband;
 
     public Observer(String filenameBase, String qTableFilename) throws Exception {
         this.model2D = new Model2D();
@@ -40,12 +41,12 @@ public class Observer implements PropertyChangeListener {
 
     private void setupModel2D() {
         this.model2D.setTimeStep(10f);
-        this.model2D.getThermostats().get(0).setDeadband(1f);
-        this.model2D.getThermostats().get(0).setSetPoint(20f);
+        this.model2D.getThermostats().get(0).setDeadband(200f);
+        this.model2D.getThermostats().get(0).setSetPoint(200f);
     }
 
     private void setupQTable() {
-        this.qTable = new QTable();
+        this.qTable = new QTable(this.targetTemp, this.deadband);
     }
 
     private void setupEnvironment(float targetTemp) {
@@ -56,6 +57,7 @@ public class Observer implements PropertyChangeListener {
     public void init() throws Exception {
         this.logger = new Logger();
         this.targetTemp = 20f;
+        this.deadband = 1f;
         InputStream is = new FileInputStream("src/main/resources/test-heating-sun-2.e2d");
         DefaultHandler saxHandler = new XmlDecoderHeadlessForModelExport(this.model2D);
         try {

@@ -17,8 +17,12 @@ public class QTable implements Serializable {
 
     HashMap<String, float[]> qTable;
     public int loops = 0;
+    public float targetTemp;
+    public float deadband;
 
-    public QTable() {
+    public QTable(float targetTemp, float deadband) {
+        this.targetTemp = targetTemp;
+        this.deadband = deadband;
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
@@ -51,12 +55,19 @@ public class QTable implements Serializable {
         environment.setOutsideTemp(outsideTemp);
 
         // Set model2D heat source to on/off
-        if (insideThermostat.getPowerSource().getPowerSwitch()) {
-            environment.takeAction(environment.HEAT, model2D.getTime());
-        } else {
+        if (insideTemp >= this.targetTemp + this.deadband) {
+            insideThermostat.getPowerSource().setPowerSwitch(false);
             environment.takeAction(environment.STOP_HEATING, model2D.getTime());
+        } else if (insideTemp <= this.targetTemp - this.deadband) {
+             insideThermostat.getPowerSource().setPowerSwitch(true);
+             environment.takeAction(environment.HEAT, model2D.getTime());
+        } else {
+            if (insideThermostat.getPowerSource().getPowerSwitch()) {
+                environment.takeAction(environment.HEAT, model2D.getTime());
+            } else {
+                environment.takeAction(environment.STOP_HEATING, model2D.getTime());
+            }
         }
-        System.out.println(insideTemp);
     }
 
     public void setqTable(HashMap<String, float[]> qTable) {
