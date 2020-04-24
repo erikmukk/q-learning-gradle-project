@@ -115,6 +115,13 @@ public class Environment implements Serializable {
         this.addTempAndTime(timeHr);
     }
 
+    public int getElectricityPriceAt(float time) {
+        int timeHr = (int) (time / 3600);
+        if (timeHr > 23) {
+            timeHr = 23;
+        } return Math.round(this.electricityStockPrice.get(timeHr));
+    }
+
     public int[] getActionSpace() {
         return actionSpace;
     }

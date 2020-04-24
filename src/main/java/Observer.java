@@ -55,8 +55,8 @@ public class Observer implements PropertyChangeListener {
         this.model2D.getThermostats().get(0).setSetPoint(200f);
     }
 
-    private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityPrice) {
-        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityPrice, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight);
+    private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityValue, int minElectricityPrice, int maxElectricityPrice) {
+        this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityValue, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight, minElectricityPrice, maxElectricityPrice);
     }
 
     private void setupEnvironment(float targetTemp) {
@@ -70,6 +70,8 @@ public class Observer implements PropertyChangeListener {
         float maxOutsideTemp = 40f;
         float minInsideTemp = 0f;
         float maxInsideTemp = 40f;
+        int minElectricityPrice = 8;
+        int maxElectricityPrice = 65;
         this.targetTemp = 20f;
         InputStream is = new FileInputStream("src/main/resources/test-heating-sun-2.e2d");
         DefaultHandler saxHandler = new XmlDecoderHeadlessForModelExport(this.model2D);
@@ -89,7 +91,7 @@ public class Observer implements PropertyChangeListener {
                 maxElectricityValue = entry.getValue();
             }
         }
-        setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
+        setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue, minElectricityPrice, maxElectricityPrice);
 
         System.out.println("QTable initialized");
         this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
