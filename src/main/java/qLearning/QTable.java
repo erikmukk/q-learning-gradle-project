@@ -79,7 +79,13 @@ public class QTable implements Serializable {
     }
 
     private double electricityPriceReward(float time, int action, Environment env) {
-        int timeHr = (int) (time / 3600);
+        int timeHr;
+        if (time > 86400) {
+            timeHr = (int) ((time - 86400) / 3600);
+        } else {
+            timeHr = (int) (time / 3600);
+        }
+
         if (timeHr > 23) {
             timeHr = 23;
         }

@@ -47,7 +47,7 @@ public class Observer implements PropertyChangeListener {
     private void readQTable() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            HashMap<String, float[]> table = mapper.readValue(new File("src/main/resources/qTable.json"), new TypeReference<HashMap<String, float[]>>() {
+            HashMap<String, float[]> table = mapper.readValue(new File("src/main/resources/" + this.qTableFilename), new TypeReference<HashMap<String, float[]>>() {
             });
             this.qTable.setqTable(table);
         } catch (Exception e) {

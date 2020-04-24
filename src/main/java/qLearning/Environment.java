@@ -97,9 +97,6 @@ public class Environment implements Serializable {
 
     public void takeAction(int choice, float time) {
         int timeHr = (int) (time / 3600);
-        if (timeHr > 23) {
-            timeHr = 23;
-        }
         if (choice == HEAT) {
             addTimeAndPrice(timeHr);
             this.isHeating = true;
