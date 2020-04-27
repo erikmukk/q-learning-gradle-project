@@ -82,6 +82,13 @@ public class Environment implements Serializable {
 
     }
 
+    public int getElectricityPriceAt(float time) {
+        int timeHr = (int) (time / 3600);
+        if (timeHr > 23) {
+            timeHr = 23;
+        } return Math.round(this.electricityStockPrice.get(timeHr));
+    }
+
     private void addTempAndTime(int timeHr) {
         // Set temp times
         if (this.heatingPeriodAndAvgTempMap.containsKey(timeHr)) {

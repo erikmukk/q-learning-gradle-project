@@ -47,28 +47,28 @@ public class QTable implements Serializable {
         this.electricityPriceNormalization = new Normalization(maxElectricityPrice, 0f, 0f, 1f);
     }
 
-    public String makeQTableKey(float insideTemp, float outsideTemp) {
-        return insideTemp + "_" + outsideTemp;
+    public String makeQTableKey(float insideTemp, float outsideTemp, float electricityPrice) {
+        return insideTemp + "_" + outsideTemp + "_" + electricityPrice;
     }
 
-    public String makeQTableKey(int insideTemp, int outsideTemp) {
-        return insideTemp + "_" + outsideTemp;
+    public String makeQTableKey(int insideTemp, int outsideTemp, int electricityPrice) {
+        return insideTemp + "_" + outsideTemp + "_" + electricityPrice;
     }
 
-    public String calculateQTableKey (float insideTemp, float outsideTemp) {
+    public String calculateQTableKey (float insideTemp, float outsideTemp, float electricityPrice) {
         if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
         if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
         if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
         if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp);
+        return makeQTableKey(insideTemp, outsideTemp, electricityPrice);
     }
 
-    public String calculateQTableKey (int insideTemp, int outsideTemp) {
+    public String calculateQTableKey (int insideTemp, int outsideTemp, int electricityPrice) {
         if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
         if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
         if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
         if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp);
+        return makeQTableKey(insideTemp, outsideTemp, electricityPrice);
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
@@ -116,7 +116,8 @@ public class QTable implements Serializable {
         } catch (Exception e) {
             outsideTemp = bgTemp;
         }
-        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp);
+        int electricityPrice = environment.getElectricityPriceAt(model2D.getTime());
+        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice);
         // Get actions
         float[] _actions = this.qTable.get(this.observationSpace);
         if (_actions == null) {
