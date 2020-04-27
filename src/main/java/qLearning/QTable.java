@@ -78,10 +78,11 @@ public class QTable implements Serializable {
             for (int j=(int)minOutsideTemp; j <= maxOutsideTemp + 0.1f ; j+=1) {
                 for (int h = minElectricityPrice; h <= maxElectricityPrice ; h+=1) {
                     //String key = this.makeQTableKey(Helpers.roundFloat(i, 1), Helpers.roundFloat(j, 1));
-                    String key = this.makeQTableKey(i, j, h);
-                    this.qTable.put(key, new float[2]);
+                    for (int heatingStatus = 0 ; heatingStatus < 2 ; heatingStatus += 1) {
+                        String key = this.makeQTableKey(i, j, h, heatingStatus);
+                        this.qTable.put(key, new float[2]);
+                    }
                 }
-
             }
         }
         String[] specialKeys = new String[4];
@@ -94,28 +95,28 @@ public class QTable implements Serializable {
         }
     }
 
-    public String makeQTableKey(float insideTemp, float outsideTemp, float electricityPrice) {
-        return insideTemp + "_" + outsideTemp + "_" + electricityPrice;
+    public String makeQTableKey(float insideTemp, float outsideTemp, float electricityPrice, int heatingStatus) {
+        return insideTemp + "_" + outsideTemp + "_" + electricityPrice + "_" + heatingStatus;
     }
 
-    public String makeQTableKey(int insideTemp, int outsideTemp, int electricityPrice) {
-        return insideTemp + "_" + outsideTemp + "_" + electricityPrice;
+    public String makeQTableKey(int insideTemp, int outsideTemp, int electricityPrice, int heatingStatus) {
+        return insideTemp + "_" + outsideTemp + "_" + electricityPrice + "_" + heatingStatus;
     }
 
-    public String calculateQTableKey (float insideTemp, float outsideTemp, float electricityPrice) {
+    public String calculateQTableKey (float insideTemp, float outsideTemp, float electricityPrice, int heatingStatus) {
         if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
         if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
         if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
         if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp, electricityPrice);
+        return makeQTableKey(insideTemp, outsideTemp, electricityPrice, heatingStatus);
     }
 
-    public String calculateQTableKey (int insideTemp, int outsideTemp, int electricityPrice) {
+    public String calculateQTableKey (int insideTemp, int outsideTemp, int electricityPrice, int heatingStatus) {
         if (insideTemp > maxInsideTemp) return aboveMaxInsideTempKey;
         if (insideTemp < minInsideTemp) return belowMinInsideTempKey;
         if (outsideTemp > maxOutsideTemp) return aboveMaxOutsideTempKey;
         if (outsideTemp < minOutsideTemp) return belowMinOutsideTempKey;
-        return makeQTableKey(insideTemp, outsideTemp, electricityPrice);
+        return makeQTableKey(insideTemp, outsideTemp, electricityPrice, heatingStatus);
     }
 
     public void startNewIteration(Logger logger, Environment environment) {
@@ -167,7 +168,8 @@ public class QTable implements Serializable {
             outsideTemp = bgTemp;
         }
         int electricityPrice = environment.getElectricityPriceAt(model2D.getTime());
-        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice);
+        int heatingStatus = insideThermostat.getPowerSource().getPowerSwitch() ? 0 : 1;
+        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice, heatingStatus);
         // Get actions
         float[] _actions = this.qTable.get(this.observationSpace);
         if (_actions == null) {
@@ -194,6 +196,7 @@ public class QTable implements Serializable {
         float reward = 0;
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
+        Thermostat insideThermostat = model2D.getThermostats().get(0);
         int targetTemp = Math.round(environment.targetTemp);
         int bgTemp = Math.round(model2D.getBackgroundTemperature());
         int insideTemp;
@@ -225,7 +228,8 @@ public class QTable implements Serializable {
         environment.setOutsideTemp(outsideTemp);
 
         int electricityPrice = environment.getElectricityPriceAt(model2D.getTime());
-        this.newObservationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice);
+        int heatingStatus = insideThermostat.getPowerSource().getPowerSwitch() ? 0 : 1;
+        this.newObservationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice, heatingStatus);
         float maxFutureQVal = findMax(this.qTable.get(this.newObservationSpace));
         float[] currentQValArray = this.qTable.get(this.observationSpace);
         float currentQVal = currentQValArray[this.calculatedAction];
