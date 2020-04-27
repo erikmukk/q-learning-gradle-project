@@ -25,7 +25,7 @@ public class Observer implements PropertyChangeListener {
     public Logger logger;
     public Model2D model2D;
     public float targetTemp;
-    public int loopLengthMins = 1;
+    public int loopLengthMins;
     public String filenameBase;
     public float epsilon;
     public float epsilonDecay;
@@ -35,7 +35,7 @@ public class Observer implements PropertyChangeListener {
     public float temperatureRewardWeight;
     public float electricityRewardWeight;
 
-    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight) throws Exception {
+    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight, int loopLengthMins) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
@@ -44,6 +44,7 @@ public class Observer implements PropertyChangeListener {
         this.learningRate = learningRate;
         this.discount = discount;
         this.loopsCount = loopsCount;
+        this.loopLengthMins = loopLengthMins;
         this.temperatureRewardWeight = temperatureRewardWeight;
         this.electricityRewardWeight = electricityRewardWeight;
         init();
