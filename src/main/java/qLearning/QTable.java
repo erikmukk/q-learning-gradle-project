@@ -117,14 +117,25 @@ public class QTable implements Serializable {
             outsideTemp = bgTemp;
         }
         int electricityPrice = environment.getElectricityPriceAt(model2D.getTime());
-        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp, electricityPrice);
+        String observationSpace0 = calculateQTableKey(insideTemp, outsideTemp, electricityPrice) + "_0";
+        String observationSpace1 = calculateQTableKey(insideTemp, outsideTemp, electricityPrice) + "_1";
         // Get actions
-        float[] _actions = this.qTable.get(this.observationSpace);
-        if (_actions == null) {
-            _actions = this.qTable.get(aboveMaxInsideTempKey);
-        }
+        float[] _actions0 = this.qTable.get(observationSpace0);
+        float[] _actions1 = this.qTable.get(observationSpace1);
+        float[] _actions;
         // Find action according to qTable or randomly
-        this.calculatedAction = findArgmax(_actions);
+        if (_actions0 == null || _actions1 == null) {
+            _actions = this.qTable.get(aboveMaxInsideTempKey);
+            this.calculatedAction = findArgmax(_actions);
+        } else {
+            int calcedAction0 = findArgmax(_actions0);
+            int calcedAction1 = findArgmax(_actions1);
+            if (_actions0[calcedAction0] > _actions1[calcedAction1]) {
+                this.calculatedAction = calcedAction0;
+            } else {
+                this.calculatedAction = calcedAction1;
+            }
+        }
         environment.setInsideTemp(insideTemp);
         environment.setOutsideTemp(outsideTemp);
 
