@@ -93,6 +93,7 @@ public class Observer implements PropertyChangeListener {
         setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
 
         System.out.println("QTable initialized");
+        this.model2D.takeMeasurement();
         this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         this.model2D.run();
     }
