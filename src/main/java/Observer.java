@@ -34,8 +34,9 @@ public class Observer implements PropertyChangeListener {
     public int loopsCount;
     public float temperatureRewardWeight;
     public float electricityRewardWeight;
+    public float initialTemp;
 
-    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight, int loopLengthMins) throws Exception {
+    public Observer(String filenameBase, float epsilon, float epsilonDecay, float learningRate, float discount, int loopsCount, float temperatureRewardWeight, float electricityRewardWeight, int loopLengthMins, float targetTemp, float initialTemp) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
@@ -47,6 +48,8 @@ public class Observer implements PropertyChangeListener {
         this.loopLengthMins = loopLengthMins;
         this.temperatureRewardWeight = temperatureRewardWeight;
         this.electricityRewardWeight = electricityRewardWeight;
+        this.targetTemp = targetTemp;
+        this.initialTemp = initialTemp;
         init();
     }
 
@@ -54,15 +57,16 @@ public class Observer implements PropertyChangeListener {
         this.model2D.setTimeStep(10f);
         this.model2D.getThermostats().get(0).setDeadband(200f);
         this.model2D.getThermostats().get(0).setSetPoint(200f);
+        this.model2D.setBackgroundTemperature(this.initialTemp);
     }
 
     private void setupQTable(float minInsideTemp, float maxInsideTemp, float minOutsideTemp, float maxOutsideTemp, int actionsLength, float maxElectricityValue, int minElectricityPrice, int maxElectricityPrice) {
         this.qTable = new QTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, actionsLength, maxElectricityValue, this.epsilon, this.epsilonDecay, this.learningRate, this.discount, this.temperatureRewardWeight, this.electricityRewardWeight, minElectricityPrice, maxElectricityPrice);
     }
 
-    private void setupEnvironment(float targetTemp) {
+    private void setupEnvironment() {
         float bgTemp = model2D.getBackgroundTemperature();
-        this.environment = new Environment(bgTemp, bgTemp, targetTemp, this.loopLengthMins);
+        this.environment = new Environment(bgTemp, bgTemp, this.targetTemp, this.loopLengthMins);
     }
 
     public void init() throws Exception {
@@ -73,7 +77,6 @@ public class Observer implements PropertyChangeListener {
         float maxInsideTemp = 40f;
         int minElectricityPrice = 8;
         int maxElectricityPrice = 65;
-        this.targetTemp = 20f;
         InputStream is = new FileInputStream("src/main/resources/test-heating-sun-2.e2d");
         DefaultHandler saxHandler = new XmlDecoderHeadlessForModelExport(this.model2D);
         try {
@@ -83,7 +86,7 @@ public class Observer implements PropertyChangeListener {
             e.printStackTrace();
         }
         setupModel2D();
-        setupEnvironment(this.targetTemp);
+        setupEnvironment();
 
         HashMap<Integer, Float> electricityStockPrice = this.environment.getElectricityStockPrice();
         float maxElectricityValue = 0;
@@ -150,7 +153,7 @@ public class Observer implements PropertyChangeListener {
         }
     }
 
-    public void calculateValues(float targetTemp) {
+    public void calculateValues() {
         float time = this.model2D.getTime();
         this.model2D.takeMeasurement();
         if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
@@ -162,7 +165,7 @@ public class Observer implements PropertyChangeListener {
             this.qTable.doWhenXTimeHasPassed(this.environment, this.model2D);
             this.qTable.startNewIteration(this.logger, this.environment);
             this.model2D.reset();
-            setupEnvironment(targetTemp);
+            setupEnvironment();
             int loops = this.qTable.getLoops();
             if (loops % this.loopsCount == 0) {
                 writeIntoFile(this.logger);
@@ -180,7 +183,7 @@ public class Observer implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent event) {
         this.model2D.stop();
         try {
-            calculateValues(this.targetTemp);
+            calculateValues();
             //calculateValuesForTest(this.targetTemp);
         } catch (Exception e) {
             e.printStackTrace();

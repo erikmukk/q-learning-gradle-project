@@ -12,7 +12,9 @@ public class Main {
             float temperatureRewardWeight = Float.parseFloat(args[6]);
             float electricityRewardWeight = Float.parseFloat(args[7]);
             int loopLengthMins = Integer.parseInt(args[8]);
-            new Observer(filename, epsilon, epsilonDecay, learningRate, discount, loopsCount, temperatureRewardWeight, electricityRewardWeight, loopLengthMins);
+            float targetTemp = Float.parseFloat(args[9]);
+            float initialTemp = Float.parseFloat(args[10]);
+            new Observer(filename, epsilon, epsilonDecay, learningRate, discount, loopsCount, temperatureRewardWeight, electricityRewardWeight, loopLengthMins, targetTemp, initialTemp);
         } else {
             System.out.println("Give me arguments. Exiting...");
         }
