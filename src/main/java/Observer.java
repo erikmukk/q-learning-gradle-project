@@ -31,11 +31,13 @@ public class Observer implements PropertyChangeListener {
     public String qTableFilename;
     public float deadband;
 
-    public Observer(String filenameBase, String qTableFilename) throws Exception {
+    public Observer(String filenameBase, String qTableFilename, float targetTemp, float deadband) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
         this.qTableFilename = qTableFilename;
+        this.targetTemp = targetTemp;
+        this.deadband = deadband;
         init();
     }
 
@@ -56,8 +58,6 @@ public class Observer implements PropertyChangeListener {
 
     public void init() throws Exception {
         this.logger = new Logger();
-        this.targetTemp = 20f;
-        this.deadband = 1f;
         InputStream is = new FileInputStream("src/main/resources/test-heating-sun-2.e2d");
         DefaultHandler saxHandler = new XmlDecoderHeadlessForModelExport(this.model2D);
         try {
