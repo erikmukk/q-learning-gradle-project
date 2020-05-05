@@ -149,21 +149,19 @@ public class QTable implements Serializable {
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
         int bgTemp = Math.round(model2D.getBackgroundTemperature());
-        int insideTemp;
-        int outsideTemp;
+        int insideTempKey;
+        int outsideTempKey;
         try {
-            //insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
-            insideTemp = Math.round(insideThermometer.getCurrentData());
+            insideTempKey = Math.round(insideThermometer.getCurrentData());
         } catch (Exception e) {
-            insideTemp = bgTemp;
+            insideTempKey = bgTemp;
         }
         try {
-            //outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
-            outsideTemp = Math.round(outsideThermometer.getCurrentData());
+            outsideTempKey = Math.round(outsideThermometer.getCurrentData());
         } catch (Exception e) {
-            outsideTemp = bgTemp;
+            outsideTempKey = bgTemp;
         }
-        this.observationSpace = calculateQTableKey(insideTemp, outsideTemp);
+        this.observationSpace = calculateQTableKey(insideTempKey, outsideTempKey);
         // Get actions
         float[] _actions = this.qTable.get(this.observationSpace);
         if (_actions == null) {
@@ -192,37 +190,34 @@ public class QTable implements Serializable {
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         int targetTemp = Math.round(environment.targetTemp);
         int bgTemp = Math.round(model2D.getBackgroundTemperature());
-        int insideTemp;
-        int outsideTemp;
+        float insideTemp;
+        int insideTempKey;
+        float outsideTemp;
+        int outsideTempKey;
         try {
-            //insideTemp = Helpers.roundFloat(insideThermometer.getCurrentData(), 1);
-            insideTemp = Math.round(insideThermometer.getCurrentData());
+            insideTemp = insideThermometer.getCurrentData();
+            insideTempKey = Math.round(insideThermometer.getCurrentData());
         } catch (Exception e) {
             insideTemp = bgTemp;
+            insideTempKey = bgTemp;
         }
         try {
-            //outsideTemp = Helpers.roundFloat(outsideThermometer.getCurrentData(), 1);
-            outsideTemp = Math.round(outsideThermometer.getCurrentData());
+            outsideTemp = outsideThermometer.getCurrentData();
+            outsideTempKey = Math.round(outsideThermometer.getCurrentData());
         } catch (Exception e) {
             outsideTemp = bgTemp;
+            outsideTempKey = bgTemp;
         }
 
         // Calculate episode reward
         float tempReward = Math.abs(targetTemp - insideTemp) * -1 * this.temperatureRewardWeight;
         reward += tempReward;
-        // Here I changed to normalization [0, 1]
-        // reward += Math.pow(this.tempNormalization.normalize(Math.abs(targetTemp - rewardInsideTemp)) * this.temperatureRewardWeight, 4);
-        // Ignore for now. Not using electricity reward atm.
-        //if (this.calculatedAction == environment.HEAT) {
-            //double electricityReward = electricityPriceReward(model2D.getTime(), calculatedAction, environment) * this.electricityRewardWeight;
-            //reward += electricityReward;
-        //}
 
         // Make changes in environment
         environment.setInsideTemp(insideTemp);
         environment.setOutsideTemp(outsideTemp);
 
-        this.newObservationSpace = calculateQTableKey(insideTemp, outsideTemp);
+        this.newObservationSpace = calculateQTableKey(insideTempKey, outsideTempKey);
         float maxFutureQVal = findMax(this.qTable.get(this.newObservationSpace));
         float[] currentQValArray = this.qTable.get(this.observationSpace);
         float currentQVal = currentQValArray[this.calculatedAction];
