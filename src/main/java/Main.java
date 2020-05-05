@@ -14,6 +14,17 @@ public class Main {
             int loopLengthMins = Integer.parseInt(args[8]);
             float targetTemp = Float.parseFloat(args[9]);
             float initialTemp = Float.parseFloat(args[10]);
+            /*String filename = "debug";
+            float epsilon = 0.9f;
+            float epsilonDecay = 0.999f;
+            float learningRate = 0.1f;
+            float discount = 0.9f;
+            int loopsCount = 2500;
+            float temperatureRewardWeight = 0.9f;
+            float electricityRewardWeight = 0.1f;
+            int loopLengthMins = 1;
+            float targetTemp = 22f;
+            float initialTemp = 15f;*/
             new Observer(filename, epsilon, epsilonDecay, learningRate, discount, loopsCount, temperatureRewardWeight, electricityRewardWeight, loopLengthMins, targetTemp, initialTemp);
         } else {
             System.out.println("Give me arguments. Exiting...");
