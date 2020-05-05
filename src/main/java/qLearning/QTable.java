@@ -145,6 +145,7 @@ public class QTable implements Serializable {
     }
 
     public void doStepBeforeRunningXMinutes(Environment environment, Model2D model2D) {
+        model2D.takeMeasurement();
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
@@ -185,6 +186,7 @@ public class QTable implements Serializable {
     }
 
     public void doWhenXTimeHasPassed(Environment environment, Model2D model2D) {
+        model2D.takeMeasurement();
         float reward = 0;
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
