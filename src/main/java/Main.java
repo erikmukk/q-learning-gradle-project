@@ -6,8 +6,9 @@ public class Main {
             System.out.println("I am main class!");
             String filename = args[0];
             String qTableFilename = args[1];
-            Float targetTemp = Float.parseFloat(args[2]);
-            new Observer(filename, qTableFilename, targetTemp);
+            float targetTemp = Float.parseFloat(args[2]);
+            int timestep = Integer.parseInt(args[3]);
+            new Observer(filename, qTableFilename, targetTemp, timestep);
         } else {
             System.out.println("Give me arguments. Exiting...");
         }
