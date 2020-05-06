@@ -94,7 +94,6 @@ public class Observer implements PropertyChangeListener {
         setupQTable(minInsideTemp, maxInsideTemp, minOutsideTemp, maxOutsideTemp, this.environment.getActionSpace().length, maxElectricityValue);
 
         System.out.println("QTable initialized");
-        this.model2D.takeMeasurement();
         this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
         this.model2D.run();
     }
@@ -133,7 +132,6 @@ public class Observer implements PropertyChangeListener {
 
     public void calculateValues(float targetTemp) {
         float time = this.model2D.getTime();
-        this.model2D.takeMeasurement();
         if (time % (this.loopLengthMins*60) == 0 & time < 86400) {
             // Take new action before running x time
             this.qTable.doStepBeforeRunningXMinutes(this.environment, this.model2D);
