@@ -78,26 +78,8 @@ public class QTable implements Serializable {
         logger.addToTemperatureAveragesPerLoopPerHr(this.loops, environment.getHeatingPeriodAndAvgTempMap());
     }
 
-    private double electricityPriceReward(float time, int action, Environment env) {
-        int timeHr;
-        if (time > 86400) {
-            timeHr = (int) ((time - 86400) / 3600);
-        } else {
-            timeHr = (int) (time / 3600);
-        }
-
-        if (timeHr > 23) {
-            timeHr = 23;
-        }
-        HashMap<Integer, Float> prices = env.getElectricityStockPrice();
-        float electricityPrice = prices.get(timeHr);
-        if (action == env.HEAT) {
-            return electricityPrice;
-        }
-        return 0;
-    }
-
     public void doStepBeforeRunningXMinutes(Environment environment, Model2D model2D) {
+        model2D.takeMeasurement();
         Thermometer insideThermometer = model2D.getThermometer("inside");
         Thermometer outsideThermometer = model2D.getThermometer("outside");
         Thermostat insideThermostat = model2D.getThermostats().get(0);
