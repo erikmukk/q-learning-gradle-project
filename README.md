@@ -1,7 +1,7 @@
 # q-learning-gradle-project
 "inside-outside-thermometer-electricity" haru.
 
-Siin harus olevat koodi saab kasutatada temperatuuriga arvestava Q-õppe süsteemi treenimiseks.
+Siin harus olevat koodi saab kasutatada temperatuuri ja elektrihinnaga arvestava Q-õppe süsteemi treenimiseks.
 
 Programm pannakse tööle käsurealt järgmise käsuga:
 
