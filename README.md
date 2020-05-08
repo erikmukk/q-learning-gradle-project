@@ -1,7 +1,7 @@
 # q-learning-gradle-project
 "run-one-iteration-electricity" haru.
 
-Siin harus olevat koodi saab kasutatada temperatuuriga arvestava Q-õppe süsteemi testimiseks.
+Siin harus olevat koodi saab kasutatada temperatuuri ja elektrihinnaga arvestava Q-õppe süsteemi testimiseks.
 
 Programm pannakse tööle käsurealt järgmise käsuga:
 
