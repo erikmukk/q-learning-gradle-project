@@ -28,14 +28,12 @@ public class Observer implements PropertyChangeListener {
     public float targetTemp;
     public int loopLengthMins = 1;
     public String filenameBase;
-    public String qTableFilename;
     public float deadband;
 
-    public Observer(String filenameBase, String qTableFilename, float targetTemp, float deadband) throws Exception {
+    public Observer(String filenameBase, float targetTemp, float deadband) throws Exception {
         this.model2D = new Model2D();
         this.model2D.addChangeListener(this);
         this.filenameBase = filenameBase;
-        this.qTableFilename = qTableFilename;
         this.targetTemp = targetTemp;
         this.deadband = deadband;
         init();
